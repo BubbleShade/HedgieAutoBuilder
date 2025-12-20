@@ -11,7 +11,7 @@ app = QApplication(sys.argv)
 # Optionally, setting the style to 'Fusion' can make the rest of the UI consistent
 #app.setStyle('Fusion') 
 
-from pyqt_custom_titlebar_window.customTitlebarWindow import CustomTitlebarWindow
+#from pyqt_custom_titlebar_window.customTitlebarWindow import CustomTitlebarWindow
 
 window = MainWindow()
 

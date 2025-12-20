@@ -32,7 +32,7 @@ class AutoBuilderScene(QGraphicsScene):
         pose2 = PoseDisplay(self)
         pose2.setPos(125, 100)
 
-        curve = Arrow(pose1.center(), pose2.center())
+        curve = BezierCurve(pose1.center(), pose2.center())
         self.addItem(curve)
         self.context_menu = QMenu()
 
