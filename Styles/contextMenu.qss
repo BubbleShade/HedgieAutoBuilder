@@ -1,0 +1,9 @@
+QMenu {
+    background-color: rgb(40, 40, 41);
+    border: 1px solid rgb(202, 201, 211);
+    border-radius: 2px;
+    color: rgb(202, 201, 211);
+}
+QMenu::item:selected {
+    background-color: rgb(0, 106, 206);
+}
