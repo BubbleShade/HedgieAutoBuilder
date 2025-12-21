@@ -47,6 +47,8 @@ class MainWindow(FramelessWindow):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
+
+        self.setAcceptDrops(True)
         # change the default title bar if you like
         self.setTitleBar(CustomTitleBar(self))
         self.setAutoFillBackground(True)
@@ -95,3 +97,5 @@ class MainWindow(FramelessWindow):
             original system title bar rect
         """
         return QRect(size.width() - 75, 0, 75, size.height())
+    def dragEnterEvent(self, e):
+        e.accept()

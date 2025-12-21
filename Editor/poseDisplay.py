@@ -24,7 +24,7 @@ class PoseDisplay(QGraphicsItem):
     def __init__(self, scene : QGraphicsScene):
         super().__init__()
 
-        self.handle1 = BezierHandle(self)
+        self.handle = BezierHandle(self)
 
         # Draw a rectangle item, setting the dimensions.
         self.rectangle = QGraphicsRectItem(0,0,30,30, self)

@@ -16,9 +16,9 @@ from PyQt6.QtWidgets import (
     QWidget,
     QMenu,
 )
-from . import PoseDisplay, SideBar
+from . import PoseDisplay, SideBar, PoseLabel
 import Styles
-from Tools.bezierCurve import BezierCurve
+from Tools import BezierCurve
 class AutoBuilderScene(QGraphicsScene):
 
     def __init__(self, sideBar : SideBar):
@@ -31,19 +31,16 @@ class AutoBuilderScene(QGraphicsScene):
         
         pose2 = PoseDisplay(self)
         pose2.setPos(125, 100)
+        self.i = 3
 
         self.sideBar.PathLabel1.addPose("Pose1", pose1)
         self.sideBar.PathLabel1.addPose("Pose2", pose2)
 
-        curve = BezierCurve(pose1.center, pose2.center, lambda _ =  None: pose1.handle1.center() + pose1.center(), lambda _ = None: pose2.handle1.center() + pose2.center())
+        self.curves : list[BezierCurve] = []
 
-        pen = QPen(Styles.toothPasteGray)
-        pen.setWidth(2)
-        pen.setCapStyle(Qt.PenCapStyle.SquareCap)
-
-        curve.setPen(pen)
-        self.addItem(curve)
         self.context_menu = QMenu()
+        self.sideBar.PathLabel1.poseLayout.orderChanged.connect(self.reBezier)
+        self.reBezier(self.sideBar.PathLabel1.poseLayout.get_item_data())
 
 
         
@@ -66,10 +63,43 @@ class AutoBuilderScene(QGraphicsScene):
             return (eventScreenPos- QPoint(menuWidth, 0))
         else: return eventScreenPos
 
+    def handlePoseComposer(self, pose : PoseDisplay, handle):
+        return lambda _ =  None: handle.centerPos() + pose.center()
+
+    def reBezier(self, data : list[PoseLabel]):
+        for i in self.curves:
+            self.removeItem(i)
+        pen = QPen(Styles.toothPasteGray)
+        pen.setWidth(2)
+        pen.setCapStyle(Qt.PenCapStyle.SquareCap)
+
+        for i in data:
+            i.pose.handle.hideHandles()
+        
+        for i in range(len(data)-1):
+            pose1 = data[i].pose
+            pose2 = data[i+1].pose
+
+            print(data[i].text(), data[i+1].text())
+
+            pose1.handle.handle1.show()
+            pose2.handle.handle2.show()
+
+            curve = BezierCurve(pose1.center, pose2.center, 
+                                self.handlePoseComposer(pose1, pose1.handle.handle1),
+                                self.handlePoseComposer(pose2, pose2.handle.handle2))
+                                #lambda _ =  None: pose1.handle.handle1.centerPos() + pose1.center(), 
+                                #lambda _ = None: pose2.handle.handle2.centerPos() + pose2.center())
+
+            curve.setPen(pen)
+            self.addItem(curve)
+            self.curves.append(curve)
 
     def addPose(self, position: QPointF):
         pose = PoseDisplay(self)
         pose.setPos(position)
+        self.sideBar.PathLabel1.addPose(f"Pose {self.i}", pose=pose)
+        self.i += 1
         
     
         # Set all items as moveable and selectable.

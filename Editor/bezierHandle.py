@@ -19,20 +19,48 @@ from PyQt6.QtWidgets import (
 )
 import Styles
 from Tools import Line
+import math
 #from . import Arrow
-class BezierHandle(QGraphicsEllipseItem):
+def magnitude(pos : QPointF): return math.sqrt(pow(pos.x(),2) + pow(pos.y(),2))
+def unit(pos : QPointF): return pos / magnitude(pos)
+class HandleGrip(QGraphicsEllipseItem):
+    def __init__(self, parent, otherHandle : QGraphicsEllipseItem = None):
+        super().__init__(0,0,10,10, parent)
+        self.parent = parent
+        self.otherHandle = otherHandle
+    def centerPos(self):
+        return self.pos() + self.rect().center()
+    def setCenterPos(self, pos : QPointF):
+        self.setPos(pos - self.rect().center())
+    
+    def mouseMoveEvent(self, event):
+        super().mouseMoveEvent(event)
+        if(not self.isSelected): return
+        self.parent.parent.update()
+        if(self.otherHandle != None): 
+            otherPos = -unit(self.centerPos())*magnitude(self.otherHandle.centerPos())
+            self.otherHandle.setCenterPos(otherPos)
+
+
+class BezierHandle(QGraphicsItem):
     def __init__(self, parent : QGraphicsRectItem, pos : QPointF = QPointF(30,0)):
-        super().__init__(0, 0, 10, 10, parent)
+        super().__init__(parent)
+
+        self.handle1 = HandleGrip(self)
+        self.handle2 = HandleGrip(self, self.handle1)
+
+        self.handle1.otherHandle = self.handle2
 
         # Draw a rectangle item, setting the dimensions.
         #self.arrow = Arrow(QPointF(15, 4), QPointF(15, 26), self)
-        self.setPos(pos + parent.center())
+        self.handle1.setCenterPos(pos + parent.center())
+        self.handle1.setCenterPos(-pos + parent.center())
+        self.setZValue(50)
+
         self.parent = parent
 
-        #self.arrow.setPos(50, 20)
-        #scene.addItem(self.arrow)
-        self.line = Line(lambda _=None: - self.pos(), lambda _=None: self.rect().center(), self)
-        self.line.setZValue(-100)
+
+        self.line = Line(self.linePos1, self.linePos2, self)
 
         # Define the pen (line)
         pen = QPen(Styles.toothPasteGray)
@@ -40,7 +68,9 @@ class BezierHandle(QGraphicsEllipseItem):
         pen.setCapStyle(Qt.PenCapStyle.SquareCap)
         #self.arrow.setPen(pen)
 
-        self.setPen(pen)
+        self.handle1.setPen(pen)
+        self.handle2.setPen(pen)
+
         
         pen = QPen(Styles.darkerGray)
         pen.setWidth(3)
@@ -48,24 +78,29 @@ class BezierHandle(QGraphicsEllipseItem):
 
         self.line.setPen(pen)
         self.line.setFlag(QGraphicsItem.GraphicsItemFlag.ItemStacksBehindParent)
-
         brush = QBrush(Styles.toothpasteWhite)
-        self.setBrush(brush)
+        self.handle1.setBrush(brush)
+        self.handle2.setBrush(brush)
 
 
 
         self.setTransformOriginPoint(self.boundingRect().center())
 
-        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
-        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
-
-        
-
-        
-
+        self.handle1.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
+        self.handle1.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
+        self.handle2.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
+        self.handle2.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
 
         #self.arrow.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, False)
         #self.arrow.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable, False)
+
+    def linePos1(self):
+        if(not self.handle1.isVisible()): return QPointF(0,0)
+        return self.handle1.centerPos()
+    def linePos2(self):
+        if(not self.handle2.isVisible()): return QPointF(0,0)
+        return self.handle2.centerPos()
+        
         
     def wheelEvent(self, QWheelEvent):
         if(not self.isSelected()): return
@@ -76,23 +111,18 @@ class BezierHandle(QGraphicsEllipseItem):
         #self.scene.clearSelection()
     def mouseReleaseEvent(self, event):
         super().mouseReleaseEvent(event)
-        #self.scene.clearSelection()
-    def contextMenuEvent(self, event):
-        context_menu = QMenu()
-        context_menu.setStyleSheet(Styles.contextMenuStyle)
-        deleteButton = context_menu.addAction("Delete")
-        deleteButton.triggered.connect(self.delete)
-        
-        context_menu.exec(event.screenPos())
-        #event.setAccepted(True)
+                                            #self.scene.clearSelection()
+    
+    def hideHandles(self):
+        self.handle1.hide()
+        self.handle2.hide()
 
-        #return super().contextMenuEvent(event)
-            
-    def mouseMoveEvent(self, event):
-        super().mouseMoveEvent(event)
-        self.parent.update()
+    def setHandleMode(self,handle1 : bool, handle2 : bool):
+        self.handle1.setVisible(handle1)
+        self.handle2.setVisible(handle2)
+    
 
     def delete(self): self.hide()
         #self.scene.removeItem(self)
     def center(self):
-        return self.pos() + self.rect().center()
+        return self.pos()
