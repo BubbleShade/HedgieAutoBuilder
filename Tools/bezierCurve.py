@@ -27,11 +27,6 @@ class BezierCurve(QGraphicsPathItem):
         self.ctrlPoint1 = ctrlPoint1
         self.ctrlPoint2 = ctrlPoint2
 
-        pen = QPen(Styles.toothPasteGray)
-        pen.setWidth(3)
-        pen.setCapStyle(Qt.PenCapStyle.SquareCap)
-        self.setPen(pen)
-
 
     def setSource(self, point: QPointF):
         self._sourcePoint = point

@@ -18,7 +18,7 @@ from PyQt6.QtWidgets import (
     QMenu
 )
 import Styles
-from . import Arrow
+from Tools import Arrow
 from . import BezierHandle
 class PoseDisplay(QGraphicsItem):
     def __init__(self, scene : QGraphicsScene):

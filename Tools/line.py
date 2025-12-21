@@ -23,12 +23,6 @@ class Line(QGraphicsPathItem):
 
         self._sourcePoint = source
         self._destinationPoint = destination
-        
-        pen = QPen(Qt.GlobalColor.green)
-        pen.setWidth(3)
-        pen.setCapStyle(Qt.PenCapStyle.SquareCap)
-        self.setPen(pen)
-
 
     def setSource(self, point: QPointF):
         self._sourcePoint = point

@@ -18,9 +18,8 @@ from PyQt6.QtWidgets import (
     QMenu
 )
 import Styles
-from . import Line
+from Tools import Line
 #from . import Arrow
-from Tools import get_center
 class BezierHandle(QGraphicsEllipseItem):
     def __init__(self, parent : QGraphicsRectItem, pos : QPointF = QPointF(30,0)):
         super().__init__(0, 0, 10, 10, parent)
