@@ -16,7 +16,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 #from . import PoseDisplay
-from . import AutoBuilderScene
+from . import AutoBuilderScene, SideBar
 import Styles
 class Editor(QWidget):
     def __init__(self, parent : None):
@@ -24,26 +24,12 @@ class Editor(QWidget):
         Container = QVBoxLayout(self)
         topGuy = QHBoxLayout(self)
         
-        
-        # Defining a scene rect of 400x200, with it's origin at 0,0.
-        # If we don't set this on creation, we can set it later with .setSceneRect
-        self.scene = AutoBuilderScene()
-    
         # Define our layout.
-        vbox = QVBoxLayout()
+        vbox = SideBar()
 
-        up = QPushButton("Up")
-        up.clicked.connect(self.up)
-        vbox.addWidget(up)
-
-        down = QPushButton("Down")
-        down.clicked.connect(self.down)
-        vbox.addWidget(down)
-
-        rotate = QSlider()
-        rotate.setRange(0, 360)
-        rotate.valueChanged.connect(self.rotate)
-        vbox.addWidget(rotate)
+        self.scene = AutoBuilderScene(vbox)
+    
+        
 
         view = QGraphicsView(self.scene)
         view.setRenderHint(QPainter.RenderHint.Antialiasing)

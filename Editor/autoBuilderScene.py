@@ -16,14 +16,14 @@ from PyQt6.QtWidgets import (
     QWidget,
     QMenu,
 )
-from . import PoseDisplay
-from . import Arrow
+from . import PoseDisplay, Arrow, SideBar
 import Styles
 from Editor.bezierCurve import BezierCurve
 class AutoBuilderScene(QGraphicsScene):
 
-    def __init__(self):
+    def __init__(self, sideBar : SideBar):
         super().__init__(0,0,200,200)
+        self.sideBar = sideBar
 
         # Add the items to the scene. Items are stacked in the order they are added.
         pose1 = PoseDisplay(self)
@@ -32,7 +32,10 @@ class AutoBuilderScene(QGraphicsScene):
         pose2 = PoseDisplay(self)
         pose2.setPos(125, 100)
 
-        curve = BezierCurve(pose1.center(), pose2.center())
+        self.sideBar.PathLabel1.addPose("Pose1", pose1)
+        self.sideBar.PathLabel1.addPose("Pose2", pose2)
+
+        curve = BezierCurve(pose1.center, pose2.center, lambda _ =  None: pose1.handle1.center() + pose1.center(), lambda _ = None: pose2.handle1.center() + pose2.center())
         self.addItem(curve)
         self.context_menu = QMenu()
 

@@ -16,18 +16,15 @@ from PyQt6.QtWidgets import (
     QGraphicsPathItem
     
 )
-import Styles
 import math
-class BezierCurve(QGraphicsPathItem):
-    def __init__(self, source, destination, ctrlPoint1, ctrlPoint2, *args, **kwargs):
-        super(BezierCurve, self).__init__(*args, **kwargs)
+class Line(QGraphicsPathItem):
+    def __init__(self, source, destination, *args, **kwargs):
+        super(Line, self).__init__(*args, **kwargs)
 
         self._sourcePoint = source
         self._destinationPoint = destination
-        self.ctrlPoint1 = ctrlPoint1
-        self.ctrlPoint2 = ctrlPoint2
-
-        pen = QPen(Styles.toothPasteGray)
+        
+        pen = QPen(Qt.GlobalColor.green)
         pen.setWidth(3)
         pen.setCapStyle(Qt.PenCapStyle.SquareCap)
         self.setPen(pen)
@@ -39,21 +36,25 @@ class BezierCurve(QGraphicsPathItem):
     def setDestination(self, point: QPointF):
         self._destinationPoint = point
 
-    def bezierPath(self):
-    
-        path = QPainterPath()
-        path.moveTo(self._sourcePoint())
-        #print(f"CtrlPoint1: {self.ctrlPoint1()}, CtrlPoint2: {self.ctrlPoint2()}")
-        path.cubicTo(self.ctrlPoint1(), self.ctrlPoint2(), self._destinationPoint())
+    def directPath(self):
+        path = QPainterPath(self._sourcePoint())
+        path.lineTo(self._destinationPoint())
         return path
+    
+    """def paintEvent(self, e):
+
+        qp = QPainter()
+        qp.begin(self)
+        qp.setRenderHint(QPainter.RenderHint.Antialiasing)
+        self.drawBezierCurve(qp)
+        qp.end()"""
 
 
     def paint(self, painter: QPainter, option, widget=None) -> None:
-
         painter.setPen(self.pen())
         painter.setBrush(Qt.BrushStyle.NoBrush)
 
-        path = self.bezierPath()
+        path = self.directPath()
         painter.drawPath(path)
         self.setPath(path)
 

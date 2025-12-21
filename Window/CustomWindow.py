@@ -49,6 +49,7 @@ class MainWindow(FramelessWindow):
         super().__init__(parent=parent)
         # change the default title bar if you like
         self.setTitleBar(CustomTitleBar(self))
+        self.setAutoFillBackground(True)
         
         #self.label = QLabel(self)
         #self.label.setScaledContents(True)
@@ -58,6 +59,8 @@ class MainWindow(FramelessWindow):
         self.setWindowIcon(QIcon("Window/icons/LoneHeeg.png"))
         self.setWindowTitle("HedgeAuto")
         self.setStyleSheet(Styles.windowStyle)
+        self.setMinimumSize(1000,600)
+        self.setMinimumSize(400,200)
         #self.setStyleSheet("background:rgb(25,25,25)")
 
         self.titleBar.raise_()

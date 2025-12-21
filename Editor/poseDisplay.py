@@ -19,17 +19,23 @@ from PyQt6.QtWidgets import (
 )
 import Styles
 from . import Arrow
-class PoseDisplay(QGraphicsRectItem):
+from . import BezierHandle
+class PoseDisplay(QGraphicsItem):
     def __init__(self, scene : QGraphicsScene):
-        super().__init__(0, 0, 30, 30)
+        super().__init__()
+
+        self.handle1 = BezierHandle(self)
 
         # Draw a rectangle item, setting the dimensions.
-        self.arrow = Arrow(QPointF(15, 4), QPointF(15, 26), self)
+        self.rectangle = QGraphicsRectItem(0,0,30,30, self)
+        self.rectangle.setPos(-15,-15)
+        self.arrow = Arrow(QPointF(15, 4), QPointF(15, 26), self.rectangle)
+
 
         #self.arrow.setPos(50, 20)
         #scene.addItem(self.arrow)
         brush = QBrush(Qt.GlobalColor.transparent)
-        self.setBrush(brush)
+        self.rectangle.setBrush(brush)
 
         # Define the pen (line)
         pen = QPen(Qt.GlobalColor.green)
@@ -37,8 +43,8 @@ class PoseDisplay(QGraphicsRectItem):
         pen.setCapStyle(Qt.PenCapStyle.SquareCap)
         self.arrow.setPen(pen)
 
-        self.setPen(pen)
-        self.setTransformOriginPoint(self.boundingRect().center())
+        self.rectangle.setPen(pen)
+        self.rectangle.setTransformOriginPoint(self.rectangle.boundingRect().center())
 
         self.scene : QGraphicsScene = scene
         scene.addItem(self)
@@ -46,10 +52,11 @@ class PoseDisplay(QGraphicsRectItem):
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
 
-        
-
-        
-
+        self.rectangle.mouseMoveEvent = self.mouseMoveEvent
+        self.rectangle.mousePressEvent = self.mousePressEvent
+        self.rectangle.mouseReleaseEvent = self.mouseReleaseEvent
+        self.rectangle.wheelEvent = self.wheelEvent
+        self.rectangle.contextMenuEvent = self.contextMenuEvent
 
         #self.arrow.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, False)
         #self.arrow.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable, False)
@@ -57,12 +64,15 @@ class PoseDisplay(QGraphicsRectItem):
     def wheelEvent(self, QWheelEvent):
         if(not self.isSelected()): return
         #print(QWheelEvent.delta() * 1)
-        self.setRotation(self.rotation() + ((1/8)*QWheelEvent.delta()))
-    def mousePressEvent(self, e):
+        self.rectangle.setRotation(self.rectangle.rotation() + ((1/8)*QWheelEvent.delta()))
+
+    def mousePressEvent(self, event):
+        super().mousePressEvent(event)
         self.scene.clearSelection()
+
     def mouseReleaseEvent(self, event):
         super().mouseReleaseEvent(event)
-        self.scene.clearSelection()
+        #self.scene.clearSelection()
     def contextMenuEvent(self, event):
         context_menu = QMenu()
         context_menu.setStyleSheet(Styles.contextMenuStyle)
@@ -80,5 +90,8 @@ class PoseDisplay(QGraphicsRectItem):
     def delete(self):
         self.scene.removeItem(self)
     def center(self):
-        return QPointF(self.x() + self.rect().width()/2, self.y() + self.rect().height()/2)
+        return self.pos()
+    
+    def update(self):
+        self.scene.update()
 
