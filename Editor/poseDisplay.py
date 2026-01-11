@@ -98,23 +98,23 @@ class PoseDisplay(DraggableGraphicsItem):
         #return super().contextMenuEvent(event)
         
 class WaypointDisplay(DraggableGraphicsItem):
-    def __init__(self, scene : QGraphicsScene):
+    def __init__(self, scene : QGraphicsScene, waypoint):
         super().__init__(scene, False)
 
         self.handle = BezierHandle(self)
         
-        self.circle = QGraphicsEllipseItem(0,0,30,30, self)
-        self.circle.setPos(-15,-15)
-        self.arrow = Arrow(QPointF(15, 4), QPointF(15, 26), self.circle)
+        self.circle = QGraphicsEllipseItem(0,0,15,15, self)
+        self.circle.setPos(-7.5,-7.5)
+        #self.arrow = Arrow(QPointF(15, 4), QPointF(15, 26), self.circle)
 
-        brush = QBrush(Qt.GlobalColor.transparent)
+        brush = QBrush(Styles.toothpasteWhite)
         self.circle.setBrush(brush)
 
         # Define the pen (line)
-        pen = QPen(Qt.GlobalColor.green) 
+        pen = QPen(Styles.darkerGray) 
         pen.setWidth(3)
         pen.setCapStyle(Qt.PenCapStyle.SquareCap)
-        self.arrow.setPen(pen)
+        #self.arrow.setPen(pen)
 
         self.circle.setPen(pen)
         self.circle.setTransformOriginPoint(self.circle.boundingRect().center())

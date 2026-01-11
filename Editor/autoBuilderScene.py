@@ -27,7 +27,7 @@ class AutoBuilderScene(QGraphicsScene):
         self.sideBar = sideBar
 
         # Add the items to the scene. Items are stacked in the order they are added.
-        self.auto = Auto([Path(Pose(50,20), Pose(125,100))])
+        self.auto = Auto([Path(Pose(x=50,y=20), Pose(x=125,y=100),[Waypoint(x=200,y=200)])])
 
         self.auto.addToScene(self)
         self.auto.addToSideBar(self.sideBar)
@@ -69,37 +69,9 @@ class AutoBuilderScene(QGraphicsScene):
             return (eventScreenPos- QPoint(menuWidth, 0))
         else: return eventScreenPos
 
-    def handlePoseComposer(self, pose : PoseDisplay, handle):
-        return lambda _ =  None: handle.centerPos() + pose.center()
+    
 
-    def reBezier(self, data : list[PoseLabel]):
-        for i in self.curves:
-            self.removeItem(i)
-        pen = QPen(Styles.toothPasteGray)
-        pen.setWidth(2)
-        pen.setCapStyle(Qt.PenCapStyle.SquareCap)
-
-        for i in data:
-            i.pose.handle.hideHandles()
-        
-        for i in range(len(data)-1):
-            pose1 = data[i].pose
-            pose2 = data[i+1].pose
-
-            print(data[i].text(), data[i+1].text())
-
-            pose1.handle.handle1.show()
-            pose2.handle.handle2.show()
-
-            curve = BezierCurve(pose1.center, pose2.center, 
-                                self.handlePoseComposer(pose1, pose1.handle.handle1),
-                                self.handlePoseComposer(pose2, pose2.handle.handle2))
-                                #lambda _ =  None: pose1.handle.handle1.centerPos() + pose1.center(), 
-                                #lambda _ = None: pose2.handle.handle2.centerPos() + pose2.center())
-
-            curve.setPen(pen)
-            self.addItem(curve)
-            self.curves.append(curve)
+    
 
     def addPose(self, position: QPointF):
         pose = PoseDisplay(self)
