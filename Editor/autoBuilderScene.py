@@ -19,6 +19,7 @@ from PyQt6.QtWidgets import (
 from . import PoseDisplay, SideBar, PoseLabel
 import Styles
 from Tools import BezierCurve
+from .stuff import Pose, Auto, Path, Waypoint
 class AutoBuilderScene(QGraphicsScene):
 
     def __init__(self, sideBar : SideBar):
@@ -26,21 +27,26 @@ class AutoBuilderScene(QGraphicsScene):
         self.sideBar = sideBar
 
         # Add the items to the scene. Items are stacked in the order they are added.
-        pose1 = PoseDisplay(self)
-        pose1.setPos(50, 20)
+        self.auto = Auto([Path(Pose(50,20), Pose(125,100))])
+
+        self.auto.addToScene(self)
+        self.auto.addToSideBar(self.sideBar)
+
+        #pose1 = PoseDisplay(self)
+        #pose1.setPos(50, 20)
         
-        pose2 = PoseDisplay(self)
-        pose2.setPos(125, 100)
+        #pose2 = PoseDisplay(self)
+        #pose2.setPos(125, 100)
         self.i = 3
 
-        self.sideBar.PathLabel1.addPose("Pose1", pose1)
-        self.sideBar.PathLabel1.addPose("Pose2", pose2)
+        #self.sideBar.PathLabel1.addPose("Pose1", pose1)
+        #self.sideBar.PathLabel1.addPose("Pose2", pose2)
 
         self.curves : list[BezierCurve] = []
 
         self.context_menu = QMenu()
-        self.sideBar.PathLabel1.poseLayout.orderChanged.connect(self.reBezier)
-        self.reBezier(self.sideBar.PathLabel1.poseLayout.get_item_data())
+        #self.sideBar.PathLabel1.poseLayout.orderChanged.connect(self.reBezier)
+        #self.reBezier(self.sideBar.PathLabel1.poseLayout.get_item_data())
 
 
         

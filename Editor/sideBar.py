@@ -92,7 +92,7 @@ class DragWidget(QWidget):
 class PoseLabel(QLabel):
     def __init__(self, name : str, pose = None, parentLayout : QVBoxLayout = None):
         super().__init__(name)
-        self.pose : PoseDisplay = pose
+        self.pose = pose
         self.parentLayout = parentLayout
     def contextMenuEvent(self, event : QContextMenuEvent):
         context_menu = QMenu()
@@ -124,7 +124,9 @@ class PathLabel(QHBoxLayout):
         self.poses = []
         self.addWidget(QLabel("Follow Path: "))
         self.addWidget(self.poseLayout)
-    def addPose(self, name : str, pose : PoseDisplay = None):
+    def addPoseLabel(self, poseLabel):
+        self.poseLayout.add_item(poseLabel)
+    def addPose(self, name : str, pose = None):
         poseLabel = PoseLabel(name, pose=pose, parentLayout=self.poseLayout)
         self.poses.append(poseLabel)
         self.poseLayout.add_item(poseLabel)
@@ -132,23 +134,22 @@ class PathLabel(QHBoxLayout):
 
 class SideBar(QVBoxLayout):
     def __init__(self, parent = None):
-        super().__init__(parent) 
-
-        self.PathLabel1  = PathLabel()
-        self.addLayout(self.PathLabel1)
-        
+        super().__init__(parent)         
 
         up = QPushButton("Up")
-        #up.clicked.connect(self.up)
         self.addWidget(up)
 
         down = QPushButton("Down")
-        #down.clicked.connect(self.down)
         self.addWidget(down)
 
         rotate = QSlider()
         rotate.setRange(0, 360)
-        #rotate.valueChanged.connect(self.rotate)
         self.addWidget(rotate)
-    def CreatePoseLabel(self, name, pose):
-        PoseLabel(name, pose)
+        self.i = 0
+    def addPathLabel(self, pathLabel):
+        self.addLayout(pathLabel)
+    def CreatePoseLabel(self, pose, name = None):
+        if(name == None):
+            self.i += 1
+            return PoseLabel(f"Pose {self.i}", pose)
+        return PoseLabel(name, pose)
