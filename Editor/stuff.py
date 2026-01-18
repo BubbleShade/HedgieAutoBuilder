@@ -1,4 +1,4 @@
-from . import PoseDisplay, SideBar, PathLabel, WaypointDisplay
+from . import PointDisplay, SideBar, PathLabel
 import Styles
 from Tools import BezierCurve
 from PyQt6.QtCore import Qt, QMimeData, pyqtSignal
@@ -19,37 +19,22 @@ from PyQt6.QtWidgets import (
     QMenu,
     
 )
-def handlePoseComposer(pose : PoseDisplay, handle):
+def handlePoseComposer(pose : PointDisplay, handle):
     return lambda _ =  None: handle.centerPos() + pose.center()
 
-class Pose():
-    def __init__(self, parentPath = None, x = 0, y = 0):
-        self.x = x
-        self.y = y
-        self.parentPath = parentPath
-        self.poseDisplay = None
-    def setParent(self, parentPath):
-        self.parentPath = parentPath
-
-    def addPoseDisplay(self, scene):
-        self.poseDisplay = PoseDisplay(scene, self)
-        self.poseDisplay.setPos(self.x, self.y)
-    
-    def delete(self, isRecursive = False):
-        if(self.poseDisplay != None):
-            self.poseDisplay.delete()
-
 class Waypoint():
-    def __init__(self, parentPath = None, x = 0, y = 0):
+    def __init__(self, parentPath = None, x = 0, y = 0, rotation = None):
         self.x = x
         self.y = y
+        self.rotation = rotation
         self.parentPath = parentPath
         self.poseDisplay = None
     def setParent(self, parentPath):
         self.parentPath = parentPath
 
     def addDispalay(self, scene):
-        self.poseDisplay = WaypointDisplay(scene, self)
+        print("Stuff")
+        self.poseDisplay = PointDisplay(scene, self, has_rotation=self.rotation != None)
         self.poseDisplay.setPos(self.x, self.y)
     
     def delete(self, isRecursive = False):
@@ -57,18 +42,12 @@ class Waypoint():
             self.poseDisplay.delete()
 
 class Path():
-    def __init__(self, initialPose : Pose = None, endPose : Pose = None, waypoints : list[Waypoint] = []):
-        if(initialPose != None): 
-            initialPose.setParent(self)
-            self.initialPose = initialPose
-        else: self.initialPose = Pose(self)
-
-        if(endPose != None): 
-            self.endPose = endPose
-            initialPose.setParent(self)
-
-        else: self.endPose = Pose(self)
-
+    def __init__(self, waypoints : list[Waypoint] = []):
+        for i in range(2-len(waypoints)):
+            waypoints.append(Waypoint(self, rotation=0))
+        for waypoint in [waypoints[0], waypoints[-1]]:
+            if(waypoint.rotation == None): waypoint.rotation = 0
+ 
         self.waypoints = waypoints
         self.sideBarItem = None
         self.curves = []
@@ -80,7 +59,7 @@ class Path():
         for i in self.curves:
             scene.removeItem(i)
         self.curves = []
-        data = [self.initialPose, *self.waypoints, self.endPose]
+        data = self.waypoints
 
         pen = QPen(Styles.toothPasteGray)
         pen.setWidth(2)
@@ -107,8 +86,6 @@ class Path():
             self.curves.append(curve)
 
     def addToScene(self, scene):
-        self.initialPose.addPoseDisplay(scene)
-        self.endPose.addPoseDisplay(scene)
         for i in self.waypoints:
             i.addDispalay(scene)
         self.reBezier(scene)
@@ -116,8 +93,8 @@ class Path():
     def addToSideBar(self, sideBar : SideBar):
         self.sideBarItem = PathLabel()
         sideBar.addPathLabel(self.sideBarItem)
-        self.sideBarItem.addPoseLabel(sideBar.CreatePoseLabel(self.initialPose))
-        self.sideBarItem.addPoseLabel(sideBar.CreatePoseLabel(self.endPose))
+        for waypoint in self.waypoints:
+            self.sideBarItem.addPoseLabel(sideBar.CreatePoseLabel(waypoint))
 
 
 

@@ -19,7 +19,7 @@ from PyQt6.QtWidgets import (
     
 )
 #from . import PoseDisplay
-from . import PoseDisplay
+from . import PointDisplay
 import Styles
 
 class DragWidget(QWidget):
@@ -89,11 +89,12 @@ class DragWidget(QWidget):
             data.append(w)
         return data
 
-class PoseLabel(QLabel):
+class WaypointLabel(QLabel):
     def __init__(self, name : str, pose = None, parentLayout : QVBoxLayout = None):
         super().__init__(name)
         self.pose = pose
         self.parentLayout = parentLayout
+        self.setMaximumHeight(50)
     def contextMenuEvent(self, event : QContextMenuEvent):
         context_menu = QMenu()
         context_menu.setStyleSheet(Styles.contextMenuStyle)
@@ -117,6 +118,11 @@ class PoseLabel(QLabel):
             drag.exec(Qt.DropAction.MoveAction)
 
 
+
+class PoseLabel(WaypointLabel):
+    pass
+    
+
 class PathLabel(QHBoxLayout):
     def __init__(self):
         super().__init__()
@@ -135,17 +141,8 @@ class PathLabel(QHBoxLayout):
 class SideBar(QVBoxLayout):
     def __init__(self, parent = None):
         super().__init__(parent)         
-
-        up = QPushButton("Up")
-        self.addWidget(up)
-
-        down = QPushButton("Down")
-        self.addWidget(down)
-
-        rotate = QSlider()
-        rotate.setRange(0, 360)
-        self.addWidget(rotate)
         self.i = 0
+
     def addPathLabel(self, pathLabel):
         self.addLayout(pathLabel)
     def CreatePoseLabel(self, pose, name = None):
@@ -153,3 +150,8 @@ class SideBar(QVBoxLayout):
             self.i += 1
             return PoseLabel(f"Pose {self.i}", pose)
         return PoseLabel(name, pose)
+    def create_waypoint_label(self, waypointLabel, name = None):
+        if(name == None):
+            self.i += 1
+            return WaypointLabel(f"Waypoint {self.i}", waypointLabel)
+        return WaypointLabel(name, waypointLabel)

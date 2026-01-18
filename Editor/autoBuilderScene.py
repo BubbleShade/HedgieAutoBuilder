@@ -16,10 +16,10 @@ from PyQt6.QtWidgets import (
     QWidget,
     QMenu,
 )
-from . import PoseDisplay, SideBar, PoseLabel
+from . import PointDisplay, SideBar, PoseLabel
 import Styles
 from Tools import BezierCurve
-from .stuff import Pose, Auto, Path, Waypoint
+from .stuff import Auto, Path, Waypoint
 class AutoBuilderScene(QGraphicsScene):
 
     def __init__(self, sideBar : SideBar):
@@ -27,7 +27,7 @@ class AutoBuilderScene(QGraphicsScene):
         self.sideBar = sideBar
 
         # Add the items to the scene. Items are stacked in the order they are added.
-        self.auto = Auto([Path(Pose(x=50,y=20), Pose(x=125,y=100),[Waypoint(x=200,y=200)])])
+        self.auto = Auto([Path([Waypoint(x=50,y=20), Waypoint(x=125,y=100),Waypoint(x=200,y=200)])])
 
         self.auto.addToScene(self)
         self.auto.addToSideBar(self.sideBar)
@@ -74,7 +74,7 @@ class AutoBuilderScene(QGraphicsScene):
     
 
     def addPose(self, position: QPointF):
-        pose = PoseDisplay(self)
+        pose = PointDisplay(self)
         pose.setPos(position)
         self.sideBar.PathLabel1.addPose(f"Pose {self.i}", pose=pose)
         self.i += 1

@@ -1,6 +1,6 @@
 import sys
 
-from PyQt6.QtCore import Qt, QPointF, QEvent
+from PyQt6.QtCore import Qt, QPointF, QEvent, QRectF
 from PyQt6.QtGui import QBrush, QPainter, QPen
 from PyQt6.QtWidgets import (
     QApplication,
@@ -15,23 +15,20 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QGraphicsScene,
-    QMenu
+    QMenu,
 )
 import Styles
-from Tools import Arrow
+from Tools import Arrow, ArrowDrawer
 from . import BezierHandle
 class DraggableGraphicsItem(QGraphicsItem):
     def __init__(self, scene : QGraphicsScene, canRotate = True):
-        super().__init__()
+        super(DraggableGraphicsItem, self).__init__()
         self.canRotate = canRotate
 
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
 
-        
         self.scene : QGraphicsScene = scene
-        scene.addItem(self)
-
     
     def wheelEvent(self, QWheelEvent):
         if(not self.isSelected()): return
@@ -52,80 +49,42 @@ class DraggableGraphicsItem(QGraphicsItem):
         self.scene.removeItem(self)
 
     def center(self):
-        return self.pos()
-    
-    def update(self):
-        self.scene.update()
-        
+        return self.pos() 
 
-
-class PoseDisplay(DraggableGraphicsItem):
-    def __init__(self, scene : QGraphicsScene, pose):
-        super().__init__(scene, True)
-
-        self.poseHandler = pose
+class PointDisplay(DraggableGraphicsItem):
+    def poseRect(self): return QRectF(-15,-15,30,30)
+    def waypointRect(self): return QRectF(-10,-10,20,20)
+    def __init__(self, scene : QGraphicsScene, guy, has_rotation :bool = False):
+        super(PointDisplay, self).__init__(scene)
         self.handle = BezierHandle(self)
+        self.setHasRotation(has_rotation)
+        self.arrow = ArrowDrawer(QPointF(0, -11), QPointF(0, 11))
         
-        self.rectangle = QGraphicsRectItem(0,0,30,30, self)
-        self.rectangle.setPos(-15,-15)
-        self.arrow = Arrow(QPointF(15, 4), QPointF(15, 26), self.rectangle)
-
-        brush = QBrush(Qt.GlobalColor.transparent)
-        self.rectangle.setBrush(brush)
-
-        # Define the pen (line)
-        pen = QPen(Qt.GlobalColor.green) 
-        pen.setWidth(3)
-        pen.setCapStyle(Qt.PenCapStyle.SquareCap)
-        self.arrow.setPen(pen)
-
-        self.rectangle.setPen(pen)
-        self.rectangle.setTransformOriginPoint(self.rectangle.boundingRect().center())
-
-        self.rectangle.mouseMoveEvent = self.mouseMoveEvent
-        self.rectangle.mousePressEvent = self.mousePressEvent
-        self.rectangle.mouseReleaseEvent = self.mouseReleaseEvent
-        self.rectangle.wheelEvent = self.wheelEvent
-        self.rectangle.contextMenuEvent = self.contextMenuEvent
-    def contextMenuEvent(self, event):
-        context_menu = QMenu()
-        context_menu.setStyleSheet(Styles.contextMenuStyle)
-        deleteButton = context_menu.addAction("Delete")
-        deleteButton.triggered.connect(self.delete)
+        self.pen = QPen(Styles.toothPasteGray)
+        self.pen.setWidth(3)
         
-        context_menu.exec(event.screenPos())
-        #event.setAccepted(True)
-        #return super().contextMenuEvent(event)
         
-class WaypointDisplay(DraggableGraphicsItem):
-    def __init__(self, scene : QGraphicsScene, waypoint):
-        super().__init__(scene, False)
+        print(scene)
+        scene.addItem(self)
+    def drawPose(self, painter : QPainter, option, widget = ...):
+        painter.setPen(self.pen)
+        painter.drawRect(self.boundingRect())
+        self.arrow.paint(painter ,option)  
+    def drawWapoint(self, painter : QPainter, option, widget = ...):
+        painter.setPen(self.pen)
+        painter.drawEllipse(self.boundingRect())
 
-        self.handle = BezierHandle(self)
-        
-        self.circle = QGraphicsEllipseItem(0,0,15,15, self)
-        self.circle.setPos(-7.5,-7.5)
-        #self.arrow = Arrow(QPointF(15, 4), QPointF(15, 26), self.circle)
-
-        brush = QBrush(Styles.toothpasteWhite)
-        self.circle.setBrush(brush)
-
-        # Define the pen (line)
-        pen = QPen(Styles.darkerGray) 
-        pen.setWidth(3)
-        pen.setCapStyle(Qt.PenCapStyle.SquareCap)
-        #self.arrow.setPen(pen)
-
-        self.circle.setPen(pen)
-        self.circle.setTransformOriginPoint(self.circle.boundingRect().center())
-
+    def setHasRotation(self, has_rotation):
+        self.has_rotation = has_rotation
+        if(has_rotation):
+            self.paint = self.drawPose
+            self.boundingRect = self.poseRect
+        else:
+            self.paint = self.drawWapoint    
+            self.boundingRect = self.waypointRect
 
         
-        self.circle.mouseMoveEvent = self.mouseMoveEvent
-        self.circle.mousePressEvent = self.mousePressEvent
-        self.circle.mouseReleaseEvent = self.mouseReleaseEvent
-        self.circle.wheelEvent = self.wheelEvent
-        self.circle.contextMenuEvent = self.contextMenuEvent
+        
 
     def contextMenuEvent(self, event):
         context_menu = QMenu()
@@ -134,8 +93,5 @@ class WaypointDisplay(DraggableGraphicsItem):
         deleteButton.triggered.connect(self.delete)
         
         context_menu.exec(event.screenPos())
-        #event.setAccepted(True)
-        #return super().contextMenuEvent(event)
 
-    
     
