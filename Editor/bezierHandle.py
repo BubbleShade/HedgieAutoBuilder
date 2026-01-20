@@ -1,7 +1,7 @@
 import sys
 
-from PyQt6.QtCore import Qt, QPointF, QEvent, QRectF
-from PyQt6.QtGui import QBrush, QPainter, QPen
+from PyQt6.QtCore import Qt, QPointF, QEvent, QRectF, QRectF
+from PyQt6.QtGui import QBrush, QPainter, QPen, QPainterPath
 from PyQt6.QtWidgets import (
     QApplication,
     QGraphicsEllipseItem,
@@ -15,31 +15,51 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QGraphicsScene,
-    QMenu
+    QMenu,
+    
+    
 )
 import Styles
 from Tools import Line
 import math
+from . import Action
 #from . import Arrow
 def magnitude(pos : QPointF): return math.sqrt(pow(pos.x(),2) + pow(pos.y(),2))
 def unit(pos : QPointF): return pos / magnitude(pos)
+
 class HandleGrip(QGraphicsEllipseItem):
     def __init__(self, parent, otherHandle : QGraphicsEllipseItem = None):
         super().__init__(0,0,10,10, parent)
         Styles.bezierHandleStyle.set_painter(self)
         self.parent = parent
         self.otherHandle = otherHandle
+        self.startPos = self.pos()
     def centerPos(self):
         return self.pos() + self.rect().center()
-    def setCenterPos(self, pos : QPointF):
-        self.setPos(pos - self.rect().center())
-    def mouseMoveEvent(self, event):
-        super().mouseMoveEvent(event)
-        if(not self.isSelected): return
-        self.parent.parent.update()
+    
+    def setOtherPos(self):
         if(self.otherHandle != None): 
             otherPos = -unit(self.centerPos())*magnitude(self.otherHandle.centerPos())
             self.otherHandle.setCenterPos(otherPos)
+    def setBothPos(self, pos : QPointF):
+        self.setPos(pos)
+        self.setOtherPos()
+
+    def setCenterPos(self, pos : QPointF):
+        self.setPos(pos - self.rect().center())
+
+    def mousePressEvent(self, event):
+        self.startPos = self.pos()
+        return super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        super().mouseMoveEvent(event)
+        self.setOtherPos()
+    
+    def mouseReleaseEvent(self, event):
+        Action.addAction(Action.Action(lambda: self.setBothPos(self.startPos), lambda: self.setBothPos(self.pos())))
+        return super().mouseReleaseEvent(event)
+        
 
 
 class BezierHandle(QGraphicsItem):

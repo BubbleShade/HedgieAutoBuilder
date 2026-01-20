@@ -1,5 +1,5 @@
 import sys
-
+from . import Action
 from PyQt6.QtCore import Qt, QPointF, QEvent, QRectF
 from PyQt6.QtGui import QBrush, QPainter, QPen
 from PyQt6.QtWidgets import (
@@ -20,6 +20,7 @@ from PyQt6.QtWidgets import (
 import Styles
 from Tools import Arrow, ArrowDrawer
 from . import BezierHandle
+
 class DraggableGraphicsItem(QGraphicsItem):
     def __init__(self, scene : QGraphicsScene, canRotate = True):
         super(DraggableGraphicsItem, self).__init__()
@@ -29,17 +30,29 @@ class DraggableGraphicsItem(QGraphicsItem):
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
 
         self.scene : QGraphicsScene = scene
-    
+        self.startPosition = self.pos()
+    def createUndoMoveAction(this, startPos, endPos):
+        return Action.Action(lambda : this.setPos(startPos), lambda : this.setPos(endPos))    
     def wheelEvent(self, QWheelEvent):
         if(not self.isSelected()): return
-        #print(QWheelEvent.delta() * 1)
         if(not self.canRotate): return
-        self.rectangle.setRotation(self.rectangle.rotation() + ((1/8)*QWheelEvent.delta()))
+        newRotation = self.rotation() + ((1/8)*QWheelEvent.delta())
+        if(Action.lastAction() != None and Action.lastAction().key[0] == "R"):
+            print(newRotation)
+            Action.undoList[-1].redo = lambda: self.setRotation(newRotation)
+        else:
+            print("New rotate action!")
+            currentRotation = self.rotation()
+            Action.addAction(Action.Action(lambda:self.setRotation(currentRotation), lambda:self.setRotation(newRotation), ["R"]))
+        self.setRotation(self.rotation() + ((1/8)*QWheelEvent.delta()))
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
+        self.startPosition = self.pos()
         self.scene.clearSelection()
+
     def mouseReleaseEvent(self, event):
         super().mouseReleaseEvent(event)
+        Action.addAction(self.createUndoMoveAction(self.startPosition, self.pos()))
             
     def mouseMoveEvent(self, event):
         super().mouseMoveEvent(event)
@@ -61,12 +74,19 @@ class PointDisplay(DraggableGraphicsItem):
         self.arrow = ArrowDrawer(QPointF(0, -11), QPointF(0, 11))
         
         self.setParentItem(scene.camera)
+        self.pen = QPen(Styles.toothPasteGray)
+        self.pen.setWidth(3)
+
+        self.canRotate = has_rotation
+
+        self.handle.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIgnoresTransformations, True)
+        
         
     def drawPose(self, painter : QPainter, option, widget = ...):
         Styles.poseStyle.set_painter(painter)
         painter.drawRect(self.boundingRect())
         self.arrow.paint(painter ,option)
-
+        
     def drawWapoint(self, painter : QPainter, option, widget = ...):
         Styles.waypointStyle.set_painter(painter)
         painter.drawEllipse(self.boundingRect())
@@ -75,7 +95,7 @@ class PointDisplay(DraggableGraphicsItem):
     def boundingRect(self): return QRectF(0,0,0,0)
 
     def setHasRotation(self, has_rotation):
-        self.has_rotation = has_rotation
+        self.canRotate = has_rotation
         if(has_rotation):
             self.paint = self.drawPose
             self.boundingRect = self.poseRect

@@ -1,4 +1,4 @@
-from . import PointDisplay, SideBar, PathLabel
+from . import PointDisplay, SideBar, PathLabel, Action
 import Styles
 from Tools import BezierCurve
 from PyQt6.QtCore import Qt, QMimeData, pyqtSignal
@@ -37,8 +37,7 @@ class Waypoint():
         self.poseDisplay.setPos(self.x, self.y)
     
     def delete(self, isRecursive = False):
-        if(self.poseDisplay != None):
-            self.poseDisplay.delete()
+        self.parentPath.remove(self)
 
 class Path():
     def __init__(self, waypoints : list[Waypoint] = []):
@@ -53,7 +52,10 @@ class Path():
 
     def updateScene(self,scene):
         self.reBezier(scene)
-        pass
+
+    def remove(self, waypoint : Waypoint):
+        self.waypoints.remove(waypoint)
+
     def reBezier(self,scene):
         for i in self.curves:
             scene.removeItem(i)

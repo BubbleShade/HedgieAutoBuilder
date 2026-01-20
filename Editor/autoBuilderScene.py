@@ -16,8 +16,9 @@ from PyQt6.QtWidgets import (
     QWidget,
     QMenu,
 )
-from . import PointDisplay, SideBar, PoseLabel
+from . import PointDisplay, SideBar, PoseLabel, Action
 import Styles
+import numpy, math
 from Tools import BezierCurve, clamp
 from .stuff import Auto, Path, Waypoint
 from . import FieldMap, FieldImage
@@ -34,36 +35,39 @@ class Camera(QGraphicsItem):
     def paint(self, painter, option, widget = ...): pass
     def boundingRect(self):
         return QRectF(0,0,0,0)
-    def drift(self, screen_rect, mpos, inward):
-        if inward:
-            d = (pygame.Vector2(mpos) - screen_rect.center).normalize()
-        else:
-            d = (pygame.Vector2(screen_rect.center) - mpos).normalize()
- 
-        d *= self.speed
-        self.area.move_ip(int(d.x), int(d.y))
- 
     def reset(self, screen_rect):
         self.inflate = 0
         self.area = screen_rect.copy()
         return self.image.subsurface(self.area)
- 
-    def zoom_in(self, screen_rect, event):
-        self.drift(screen_rect, event.pos, True)
-        self.inflate -= self.speed
-        rect = self.area.inflate(self.inflate, self.inflate)
-        rect.clamp_ip(self.image.get_rect())
- 
-        return pygame.transform.scale(self.image.subsurface(rect), screen_rect.size)
 
     def zoom(self, amount, eventPos : QPointF= None):
+        print(f"event: {eventPos}  + cam: {self.pos()}")
         startZoomLevel = self.zoomLevel
         self.zoomLevel = clamp(self.zoomLevel + amount * 0.01, 0.5, 2.0) 
         if(startZoomLevel == self.zoomLevel): return
+        origin = eventPos  - self.pos()
+        transform = QTransform()
+        transform.translate(origin.x(), origin.y())
+        transform.scale(1/self.zoomLevel, 1/self.zoomLevel)
+        transform.translate(-origin.x(), -origin.y())
+        self.setTransform(transform)
 
-        self.setScale(1/self.zoomLevel)
-        if(eventPos == None): return
-        print(eventPos + self.scene().sceneRect().bottomRight()/2)
+
+        #self.setTransformOriginPoint(origin)
+
+        #self.setScale(1/self.zoomLevel)
+        #self.setTransform(transform)
+        
+        #self.setTransformOriginPoint(QPointF(0,0))
+
+        # scene_pos = self.mapToScene(eventPos)
+        # self.setPos(scene_pos)
+        # self.setScale(1/self.zoomLevel)
+        # delta = self.mapToScene(eventPos)# + self.mapToScene(self.scene().sceneRect().center())
+        # self.setPos(scene_pos - delta)
+
+
+        """print(eventPos + self.scene().sceneRect().bottomRight()/2)
         eventPos *= startZoomLevel
 
         moveby = (eventPos + self.scene().sceneRect().center()/2) * amount * 0.01
@@ -71,7 +75,7 @@ class Camera(QGraphicsItem):
         moveby *= self.zoomLevel
         #print(moveby)
 
-        self.moveBy(moveby.x(), moveby.y())
+        self.moveBy(moveby.x(), moveby.y())"""
         
 
         
@@ -99,10 +103,27 @@ class AutoBuilderScene(QGraphicsScene):
         self.addItem(self.fieldImage)
 
         self.auto.addToSideBar(self.sideBar)
+
+        #pose1 = PoseDisplay(self)
+        #pose1.setPos(50, 20)
+        
+        #pose2 = PoseDisplay(self)
+        #pose2.setPos(125, 100)
         self.i = 3
         self.curves : list[BezierCurve] = []
 
         self.context_menu = QMenu()
+
+    def keyPressEvent(self, event):
+        modifiers = QApplication.queryKeyboardModifiers()
+        if event.key() == Qt.Key.Key_Z and  modifiers & Qt.KeyboardModifier.ControlModifier:
+            if(modifiers & Qt.KeyboardModifier.ShiftModifier):
+                print("redo")
+                Action.redo()
+            else:
+                Action.undo()
+
+
         
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
@@ -126,7 +147,8 @@ class AutoBuilderScene(QGraphicsScene):
         super().wheelEvent(event)
         modifiers = QApplication.keyboardModifiers()
         if (modifiers & Qt.KeyboardModifier.ControlModifier):
-            self.camera.zoom(event.delta(), event.scenePos()) #+ QPointF(self.width(), self.height()))
+            scrollAmount = -math.sqrt(abs(event.delta())) * numpy.sign(event.delta())
+            self.camera.zoom(scrollAmount, event.scenePos()) #+ QPointF(self.width(), self.height()))
 
     def addItemToCamera(self, item):
         item.setParentItem(self.camera)
@@ -155,8 +177,4 @@ class AutoBuilderScene(QGraphicsScene):
         pose.setPos(position)
         self.sideBar.PathLabel1.addPose(f"Pose {self.i}", pose=pose)
         self.i += 1
-        
-    
-        # Set all items as moveable and selectable.
-        #for item in self.items():
             
