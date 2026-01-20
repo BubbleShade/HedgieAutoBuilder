@@ -91,7 +91,8 @@ class DragWidget(QWidget):
 
 class WaypointLabel(QLabel):
     def __init__(self, name : str, pose = None, parentLayout : QVBoxLayout = None):
-        super().__init__(name)
+        super().__init__()
+        self.setText(name)
         self.pose = pose
         self.parentLayout = parentLayout
         self.setMaximumHeight(50)
@@ -99,12 +100,12 @@ class WaypointLabel(QLabel):
         context_menu = QMenu()
         context_menu.setStyleSheet(Styles.contextMenuStyle)
         deleteButton = context_menu.addAction("Delete")
-        deleteButton.triggered.connect(self.delete)
+        deleteButton.triggered.connect(self.pose.delete)
         context_menu.exec(event.globalPos()) 
     def delete(self):
-        if(self.pose != None): self.pose.delete()
-        print("hello")
-        self.parentLayout.remove_item(self)
+        #if(self.pose != None): self.pose.delete()
+        self.parentLayout.removeWidget(self)
+        self.hide()
     def mouseMoveEvent(self, e):
         if e.buttons() == Qt.MouseButton.LeftButton:
             drag = QDrag(self)
@@ -116,11 +117,6 @@ class WaypointLabel(QLabel):
             drag.setPixmap(pixmap)
 
             drag.exec(Qt.DropAction.MoveAction)
-
-
-
-class PoseLabel(WaypointLabel):
-    pass
     
 
 class PathLabel(QHBoxLayout):
@@ -130,12 +126,16 @@ class PathLabel(QHBoxLayout):
         self.poses = []
         self.addWidget(QLabel("Follow Path: "))
         self.addWidget(self.poseLayout)
+        self.i = 0
     def addPoseLabel(self, poseLabel):
+        poseLabel.parentLayout = self
         self.poseLayout.add_item(poseLabel)
-    def addPose(self, name : str, pose = None):
-        poseLabel = PoseLabel(name, pose=pose, parentLayout=self.poseLayout)
-        self.poses.append(poseLabel)
-        self.poseLayout.add_item(poseLabel)
+    def create_waypoint_label(self, waypoint, name = None):
+        if(name == None):
+            self.i += 1
+            return WaypointLabel(f"Waypoint {self.i}", waypoint)
+        return WaypointLabel(name, waypoint)
+
 
 
 class SideBar(QVBoxLayout):
@@ -145,13 +145,8 @@ class SideBar(QVBoxLayout):
 
     def addPathLabel(self, pathLabel):
         self.addLayout(pathLabel)
-    def CreatePoseLabel(self, pose, name = None):
+    def create_waypoint_label(self, waypoint, name = None):
         if(name == None):
             self.i += 1
-            return PoseLabel(f"Pose {self.i}", pose)
-        return PoseLabel(name, pose)
-    def create_waypoint_label(self, waypointLabel, name = None):
-        if(name == None):
-            self.i += 1
-            return WaypointLabel(f"Waypoint {self.i}", waypointLabel)
-        return WaypointLabel(name, waypointLabel)
+            return WaypointLabel(f"Waypoint {self.i}", waypoint)
+        return WaypointLabel(name, waypoint)

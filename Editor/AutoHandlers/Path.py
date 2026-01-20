@@ -1,43 +1,11 @@
-from . import PointDisplay, SideBar, PathLabel, Action
+from .. import PointDisplay, PathLabel, SideBar
+from . import Waypoint
 import Styles
 from Tools import BezierCurve
-from PyQt6.QtCore import Qt, QMimeData, pyqtSignal
-from PyQt6.QtGui import QBrush, QPainter, QPen, QContextMenuEvent, QDrag, QPixmap
-from PyQt6.QtWidgets import (
-    QApplication,
-    QGraphicsEllipseItem,
-    QGraphicsItem,
-    QGraphicsRectItem,
-    QGraphicsScene,
-    QGraphicsView,
-    QHBoxLayout,
-    QPushButton,
-    QSlider,
-    QVBoxLayout,
-    QWidget,
-    QLabel,
-    QMenu,
-    
-)
+
 def handlePoseComposer(pose : PointDisplay, handle):
     return lambda _ =  None: handle.centerPos() + pose.center()
 
-class Waypoint():
-    def __init__(self, parentPath = None, x = 0, y = 0, rotation = None):
-        self.x = x
-        self.y = y
-        self.rotation = rotation
-        self.parentPath = parentPath
-        self.poseDisplay = None
-    def setParent(self, parentPath):
-        self.parentPath = parentPath
-
-    def addDispalay(self, scene):
-        self.poseDisplay = PointDisplay(scene, self, has_rotation=self.rotation != None)
-        self.poseDisplay.setPos(self.x, self.y)
-    
-    def delete(self, isRecursive = False):
-        self.parentPath.remove(self)
 
 class Path():
     def __init__(self, waypoints : list[Waypoint] = []):
@@ -47,21 +15,31 @@ class Path():
             if(waypoint.rotation == None): waypoint.rotation = 0
  
         self.waypoints = waypoints
+        for i in waypoints:
+            i.setParent(self)
         self.sideBarItem = None
         self.curves = []
+        self.poseLabels = {}
+        self.parentAuto = None
+
+    def scene(self):
+        if(self.parentAuto != None): return self.parentAuto.scene
+        else: return None
 
     def updateScene(self,scene):
+        if(scene == None): return
         self.reBezier(scene)
 
     def remove(self, waypoint : Waypoint):
         self.waypoints.remove(waypoint)
+        if(self.poseLabels[waypoint] != None):
+            self.poseLabels[waypoint].delete()
 
     def reBezier(self,scene):
         for i in self.curves:
             scene.removeItem(i)
         self.curves = []
         data = self.waypoints
-
 
         pen = Styles.curveStyle.pen
 
@@ -84,6 +62,12 @@ class Path():
             curve.setPen(pen)
             scene.addItem(curve)
             self.curves.append(curve)
+    def addWaypoint(self,waypoint : Waypoint,index = -1):
+        self.waypoints.insert(index, waypoint)
+        poseLabel = self.sideBarItem.create_waypoint_label(waypoint)
+        self.poseLabels[waypoint] = poseLabel
+        self.sideBarItem.addPoseLabel(poseLabel)
+        self.updateScene(self.scene())
 
     def addToScene(self, scene):
         for i in self.waypoints:
@@ -94,21 +78,6 @@ class Path():
         self.sideBarItem = PathLabel()
         sideBar.addPathLabel(self.sideBarItem)
         for waypoint in self.waypoints:
-            self.sideBarItem.addPoseLabel(sideBar.CreatePoseLabel(waypoint))
-
-
-
-class Auto():
-    def __init__(self, execution = []):
-        self.execution = execution
-    def addToScene(self, scene):
-        for i in self.execution:
-            if(i.addToScene !=  None):
-                i.addToScene(scene)
-    def addToSideBar(self, sideBar):
-        for i in self.execution:
-            i.addToSideBar(sideBar)
-
-
-
-
+            poseLabel = sideBar.create_waypoint_label(waypoint)
+            self.poseLabels[waypoint] = poseLabel
+            self.sideBarItem.addPoseLabel(poseLabel)

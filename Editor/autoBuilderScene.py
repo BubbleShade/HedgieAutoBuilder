@@ -16,11 +16,11 @@ from PyQt6.QtWidgets import (
     QWidget,
     QMenu,
 )
-from . import PointDisplay, SideBar, PoseLabel, Action
+from . import PointDisplay, SideBar, Action
 import Styles
 import numpy, math
 from Tools import BezierCurve, clamp
-from .stuff import Auto, Path, Waypoint
+from . import Auto, Path, Waypoint
 from . import FieldMap, FieldImage
 
 class Camera(QGraphicsItem):
@@ -41,14 +41,15 @@ class Camera(QGraphicsItem):
         return self.image.subsurface(self.area)
 
     def zoom(self, amount, eventPos : QPointF= None):
-        print(f"event: {eventPos}  + cam: {self.pos()}")
+        #print(f"event: {eventPos}  + cam: {self.pos()}")
         startZoomLevel = self.zoomLevel
-        self.zoomLevel = clamp(self.zoomLevel + amount * 0.01, 0.5, 2.0) 
+        mult = 1 + 0.02 * amount
+        self.zoomLevel = clamp(self.zoomLevel * mult, 0.5, 2.0) 
         if(startZoomLevel == self.zoomLevel): return
         origin = eventPos  - self.pos()
         transform = QTransform()
         transform.translate(origin.x(), origin.y())
-        transform.scale(1/self.zoomLevel, 1/self.zoomLevel)
+        transform.scale(self.zoomLevel, self.zoomLevel)
         transform.translate(-origin.x(), -origin.y())
         self.setTransform(transform)
 
@@ -56,27 +57,6 @@ class Camera(QGraphicsItem):
         #self.setTransformOriginPoint(origin)
 
         #self.setScale(1/self.zoomLevel)
-        #self.setTransform(transform)
-        
-        #self.setTransformOriginPoint(QPointF(0,0))
-
-        # scene_pos = self.mapToScene(eventPos)
-        # self.setPos(scene_pos)
-        # self.setScale(1/self.zoomLevel)
-        # delta = self.mapToScene(eventPos)# + self.mapToScene(self.scene().sceneRect().center())
-        # self.setPos(scene_pos - delta)
-
-
-        """print(eventPos + self.scene().sceneRect().bottomRight()/2)
-        eventPos *= startZoomLevel
-
-        moveby = (eventPos + self.scene().sceneRect().center()/2) * amount * 0.01
-
-        moveby *= self.zoomLevel
-        #print(moveby)
-
-        self.moveBy(moveby.x(), moveby.y())"""
-        
 
         
 class AutoBuilderScene(QGraphicsScene):
@@ -95,7 +75,7 @@ class AutoBuilderScene(QGraphicsScene):
         self.camera.setPos(-240,-150)
         
         # Add the items to the scene. Items are stacked in the order they are added.
-        self.auto = Auto([Path([Waypoint(x=504,y=504), Waypoint(x=125,y=100),Waypoint(x=200,y=200)])])
+        self.auto = Auto(self,[Path([Waypoint(x=504,y=504), Waypoint(x=125,y=100),Waypoint(x=200,y=200)])])
 
         self.auto.addToScene(self)
         self.fieldMap = FieldMap("Fields/Field2d_2025Bunnybots/")
@@ -147,7 +127,7 @@ class AutoBuilderScene(QGraphicsScene):
         super().wheelEvent(event)
         modifiers = QApplication.keyboardModifiers()
         if (modifiers & Qt.KeyboardModifier.ControlModifier):
-            scrollAmount = -math.sqrt(abs(event.delta())) * numpy.sign(event.delta())
+            scrollAmount = math.sqrt(abs(event.delta())) * numpy.sign(event.delta())
             self.camera.zoom(scrollAmount, event.scenePos()) #+ QPointF(self.width(), self.height()))
 
     def addItemToCamera(self, item):
