@@ -33,7 +33,6 @@ class Waypoint():
         self.parentPath = parentPath
 
     def addDispalay(self, scene):
-        print("Stuff")
         self.poseDisplay = PointDisplay(scene, self, has_rotation=self.rotation != None)
         self.poseDisplay.setPos(self.x, self.y)
     
@@ -61,9 +60,8 @@ class Path():
         self.curves = []
         data = self.waypoints
 
-        pen = QPen(Styles.toothPasteGray)
-        pen.setWidth(2)
-        pen.setCapStyle(Qt.PenCapStyle.SquareCap)
+
+        pen = Styles.curveStyle.pen
 
         for i in data:
             i.poseDisplay.handle.hideHandles()

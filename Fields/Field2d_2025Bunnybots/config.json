@@ -1,0 +1,10 @@
+{
+  "name": "2025 Bunnybots",
+  "isFTC": false,
+  "coordinateSystem": "wall-blue",
+  "sourceUrl": "https://team1540.org/bunnybots",
+  "topLeft": [18, 12],
+  "bottomRight": [1043, 504],
+  "widthInches": 658.328,
+  "heightInches": 316
+}

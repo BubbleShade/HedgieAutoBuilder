@@ -60,19 +60,19 @@ class PointDisplay(DraggableGraphicsItem):
         self.setHasRotation(has_rotation)
         self.arrow = ArrowDrawer(QPointF(0, -11), QPointF(0, 11))
         
-        self.pen = QPen(Styles.toothPasteGray)
-        self.pen.setWidth(3)
+        self.setParentItem(scene.camera)
         
-        
-        print(scene)
-        scene.addItem(self)
     def drawPose(self, painter : QPainter, option, widget = ...):
-        painter.setPen(self.pen)
+        Styles.poseStyle.set_painter(painter)
         painter.drawRect(self.boundingRect())
-        self.arrow.paint(painter ,option)  
+        self.arrow.paint(painter ,option)
+
     def drawWapoint(self, painter : QPainter, option, widget = ...):
-        painter.setPen(self.pen)
+        Styles.waypointStyle.set_painter(painter)
         painter.drawEllipse(self.boundingRect())
+
+    def paint(self, painter, option, widget = ...): pass
+    def boundingRect(self): return QRectF(0,0,0,0)
 
     def setHasRotation(self, has_rotation):
         self.has_rotation = has_rotation
@@ -82,9 +82,6 @@ class PointDisplay(DraggableGraphicsItem):
         else:
             self.paint = self.drawWapoint    
             self.boundingRect = self.waypointRect
-
-        
-        
 
     def contextMenuEvent(self, event):
         context_menu = QMenu()

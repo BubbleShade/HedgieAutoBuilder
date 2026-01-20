@@ -1,6 +1,6 @@
 import sys
 
-from PyQt6.QtCore import Qt, QPointF, QEvent
+from PyQt6.QtCore import Qt, QPointF, QEvent, QRectF
 from PyQt6.QtGui import QBrush, QPainter, QPen
 from PyQt6.QtWidgets import (
     QApplication,
@@ -26,13 +26,13 @@ def unit(pos : QPointF): return pos / magnitude(pos)
 class HandleGrip(QGraphicsEllipseItem):
     def __init__(self, parent, otherHandle : QGraphicsEllipseItem = None):
         super().__init__(0,0,10,10, parent)
+        Styles.bezierHandleStyle.set_painter(self)
         self.parent = parent
         self.otherHandle = otherHandle
     def centerPos(self):
         return self.pos() + self.rect().center()
     def setCenterPos(self, pos : QPointF):
         self.setPos(pos - self.rect().center())
-    
     def mouseMoveEvent(self, event):
         super().mouseMoveEvent(event)
         if(not self.isSelected): return
@@ -49,6 +49,8 @@ class BezierHandle(QGraphicsItem):
         self.handle1 = HandleGrip(self)
         self.handle2 = HandleGrip(self, self.handle1)
 
+        
+
         self.handle1.otherHandle = self.handle2
 
         # Draw a rectangle item, setting the dimensions.
@@ -63,13 +65,7 @@ class BezierHandle(QGraphicsItem):
         self.line = Line(self.linePos1, self.linePos2, self)
 
         # Define the pen (line)
-        pen = QPen(Styles.toothPasteGray)
-        pen.setWidth(2)
-        pen.setCapStyle(Qt.PenCapStyle.SquareCap)
         #self.arrow.setPen(pen)
-
-        self.handle1.setPen(pen)
-        self.handle2.setPen(pen)
 
         
         pen = QPen(Styles.darkerGray)
@@ -78,11 +74,7 @@ class BezierHandle(QGraphicsItem):
 
         self.line.setPen(pen)
         self.line.setFlag(QGraphicsItem.GraphicsItemFlag.ItemStacksBehindParent)
-        brush = QBrush(Styles.toothpasteWhite)
-        self.handle1.setBrush(brush)
-        self.handle2.setBrush(brush)
-
-
+        
 
         self.setTransformOriginPoint(self.boundingRect().center())
 
@@ -108,10 +100,8 @@ class BezierHandle(QGraphicsItem):
         #self.setRotation(self.rotation() + ((1/8)*QWheelEvent.delta()))
     def mousePressEvent(self, e):
         super().mousePressEvent(e)
-        #self.scene.clearSelection()
     def mouseReleaseEvent(self, event):
         super().mouseReleaseEvent(event)
-                                            #self.scene.clearSelection()
     
     def hideHandles(self):
         self.handle1.hide()
@@ -120,9 +110,8 @@ class BezierHandle(QGraphicsItem):
     def setHandleMode(self,handle1 : bool, handle2 : bool):
         self.handle1.setVisible(handle1)
         self.handle2.setVisible(handle2)
-    
+    def paint(self, painter, option, widget = ...): pass   
+    def boundingRect(self): return QRectF(0,0,0,0)
 
     def delete(self): self.hide()
-        #self.scene.removeItem(self)
-    def center(self):
-        return self.pos()
+    def center(self): return self.pos()
