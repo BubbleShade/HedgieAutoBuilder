@@ -52,6 +52,8 @@ class Camera(QGraphicsItem):
         transform.scale(self.zoomLevel, self.zoomLevel)
         transform.translate(-origin.x(), -origin.y())
         self.setTransform(transform)
+    def scenePosToCamera(self, pos):
+        return (pos*self.scale()) - self.pos()
 
 
         #self.setTransformOriginPoint(origin)
@@ -60,7 +62,6 @@ class Camera(QGraphicsItem):
 
         
 class AutoBuilderScene(QGraphicsScene):
-
     def __init__(self, sideBar : SideBar):
         super().__init__(0,0,200,200)
         self.sideBar = sideBar
@@ -98,7 +99,6 @@ class AutoBuilderScene(QGraphicsScene):
         modifiers = QApplication.queryKeyboardModifiers()
         if event.key() == Qt.Key.Key_Z and  modifiers & Qt.KeyboardModifier.ControlModifier:
             if(modifiers & Qt.KeyboardModifier.ShiftModifier):
-                print("redo")
                 Action.redo()
             else:
                 Action.undo()
@@ -139,10 +139,15 @@ class AutoBuilderScene(QGraphicsScene):
         context_menu = QMenu()
         context_menu.setAutoFillBackground(True)
         context_menu.setStyleSheet(Styles.contextMenuStyle)
-        addButton = context_menu.addAction("Add Pose")
         addWaypoint = context_menu.addAction("Add Waypoint")
+        addPose = context_menu.addAction("Add Pose")
+        addPath = context_menu.addAction("Add Path")
+        context_menu.addSection("test")
+        addPath = context_menu.addAction("Add Path")
+        addPath = context_menu.addAction("Add Path")
 
-        addButton.triggered.connect(lambda _:self.addPose(event.scenePos()))
+
+        addWaypoint.triggered.connect(lambda _:self.addPose(event.scenePos()))
         pos = AutoBuilderScene.calculateContextPosition(event.scenePos(), event.screenPos(), context_menu.width(), self.sceneRect().width())
         context_menu.exec(pos)
         
@@ -153,8 +158,9 @@ class AutoBuilderScene(QGraphicsScene):
         else: return eventScreenPos
 
     def addPose(self, position: QPointF):
-        pose = PointDisplay(self)
-        pose.setPos(position)
-        self.sideBar.PathLabel1.addPose(f"Pose {self.i}", pose=pose)
-        self.i += 1
+        print(position, self.camera.scenePosToCamera(position))
+        position = self.camera.scenePosToCamera(position)
+        pose = Waypoint(self.auto.getClosestPath(position), position.x(),position.y())
+        pose.addDisplay(self)
+        self.auto.getClosestPath(position).addWaypoint(pose)
             

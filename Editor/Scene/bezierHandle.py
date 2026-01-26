@@ -20,12 +20,9 @@ from PyQt6.QtWidgets import (
     
 )
 import Styles
-from Tools import Line
+from Tools import Line, unit, magnitude
 import math
-from . import Action
-#from . import Arrow
-def magnitude(pos : QPointF): return math.sqrt(pow(pos.x(),2) + pow(pos.y(),2))
-def unit(pos : QPointF): return pos / magnitude(pos)
+from .. import Action
 
 class HandleGrip(QGraphicsEllipseItem):
     def __init__(self, parent, otherHandle : QGraphicsEllipseItem = None):

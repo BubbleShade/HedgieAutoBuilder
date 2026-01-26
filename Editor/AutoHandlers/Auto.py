@@ -18,6 +18,7 @@ from PyQt6.QtWidgets import (
     QLabel,
     QMenu,
 )
+from . import Path
 
 class Auto():
     def __init__(self, scene, execution = []):
@@ -32,6 +33,16 @@ class Auto():
     def addToSideBar(self, sideBar):
         for i in self.execution:
             i.addToSideBar(sideBar)
+    def paths(self) -> list[Path]:
+        return list(filter(lambda a: type(a) == Path, self.execution))
+        
+    def getClosestPath(self, position) -> Path:
+        paths= self.paths()
+        if(len(paths) == 0): return None
+        return min(paths, key = lambda a: a.distFromPoint(position))
+        
+
+
 
 
 
