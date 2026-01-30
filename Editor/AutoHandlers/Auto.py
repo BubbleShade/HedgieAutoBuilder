@@ -19,7 +19,7 @@ from PyQt6.QtWidgets import (
     QMenu,
 )
 from . import Path
-
+from .. import FieldMap
 class Auto():
     def __init__(self, scene, execution = []):
         self.execution = execution
@@ -35,15 +35,32 @@ class Auto():
             i.addToSideBar(sideBar)
     def paths(self) -> list[Path]:
         return list(filter(lambda a: type(a) == Path, self.execution))
+    
+    def delete(self):
+        for i in self.execution:
+            i.delete()
         
     def getClosestPath(self, position) -> Path:
         paths= self.paths()
         if(len(paths) == 0): return None
         return min(paths, key = lambda a: a.distFromPoint(position))
-        
+    
+    def getJsonFile(self, fieldMap):
+        data = {"execution":[]}
 
+        for i in self.execution:
+            i.addToJson(data, fieldMap)
+        return data
+    @staticmethod
+    def fromJsonFile(scene, json : dict, fieldMap : FieldMap):
+        execution = []
+        for step in json["execution"]:
+            print(step[0])
+            if(step[0] == "Path"):
+                path = Path.fromJsonFile(json[step[1]], fieldMap)
+                print(path)
 
-
-
-
-
+                execution.append(path)
+                continue
+                
+        return Auto(scene, execution)

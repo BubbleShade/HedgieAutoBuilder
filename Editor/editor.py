@@ -1,6 +1,6 @@
 import sys
 
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QPoint
 from PyQt6.QtGui import QBrush, QPainter, QPen
 from PyQt6.QtWidgets import (
     QApplication,
@@ -14,13 +14,16 @@ from PyQt6.QtWidgets import (
     QSlider,
     QVBoxLayout,
     QWidget,
+    QMenu
 )
 #from . import PoseDisplay
 from . import AutoBuilderScene, SideBar
 import Styles
+from Window import CustomTitleBar, CustomWindow
 class Editor(QWidget):
-    def __init__(self, parent : None):
+    def __init__(self, parent : CustomWindow):
         super().__init__(parent)
+        self.parent : CustomWindow
         Container = QVBoxLayout(self)
         topGuy = QHBoxLayout(self)
         
@@ -43,24 +46,19 @@ class Editor(QWidget):
 
         self.setLayout(Container)
 
-
-    def printHi(self): print("hi")
-    def up(self):
-        """ Iterate all selected items in the view, moving them forward. """
-        items = self.scene.selectedItems()
-        for item in items:
-            z = item.zValue()
-            item.setZValue(z + 1)
-
-    def down(self):
-        """ Iterate all selected items in the view, moving them backward. """
-        items = self.scene.selectedItems()
-        for item in items:
-            z = item.zValue()
-            item.setZValue(z - 1)
-
-    def rotate(self, value):
-        """ Rotate the object by the received number of degrees. """
-        items = self.scene.selectedItems()
-        for item in items:
-            item.setRotation(value)
+        self.fileMenu = QMenu()
+        self.fileMenu.setStyleSheet(Styles.contextMenuStyle)
+        saveButton = self.fileMenu.addAction("Save As...")
+        saveButton.triggered.connect(self.scene.save_as)
+        openButton = self.fileMenu.addAction("Open File...")
+        openButton.triggered.connect(self.scene.open)
+        self.show()
+        
+        
+    def show(self):
+        super().show()
+        titleBar : CustomTitleBar = self.parent().titleBar
+        titleBar.fileButton.pressed.connect(lambda : self.fileMenu.exec(titleBar.fileButton.mapToGlobal(QPoint(0,32))))
+        
+        
+    

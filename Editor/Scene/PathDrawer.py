@@ -93,4 +93,7 @@ class PathDrawer(QGraphicsPathItem):
         path = self.bezierPath()
         painter.drawPath(path)
         self.setPath(path)
+    def delete(self):
+        self.setParentItem(None)
+        self.hide()
 

@@ -20,6 +20,11 @@ class FieldMap():
         self.widthInches = self.config["widthInches"]
         self.heightInches = self.config["heightInches"]
 
+        self.xFactor = (self.widthInches * 0.0254) / (self.bottomRight.x() - self.topLeft.x())
+        self.yFactor = (self.heightInches * 0.0254) / (self.bottomRight.y() - self.topLeft.y())
+
+        print(self.xFactor, self.yFactor)
+
             
     def getFieldImagePath(self) -> str:
         return self.path + "image.png"
@@ -28,6 +33,10 @@ class FieldMap():
     def getRedCenter(self) -> QPointF:
         print(self.getCenter())
         return self.getCenter() - QPointF(self.getCenter().x()/2, 0)
+    def screen_pos_to_field(self, screenPos : QPointF) -> QPointF:
+        return QPointF(screenPos.x() * self.xFactor, screenPos.y() * self.yFactor)
+    def field_pos_to_screen(self, screenPos : QPointF) -> QPointF:
+        return QPointF(screenPos.x() / self.xFactor, screenPos.y() / self.yFactor)
 
 class FieldImage(QGraphicsItem):
     def __init__(self, fieldMap : FieldMap, parent=None):

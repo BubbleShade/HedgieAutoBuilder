@@ -7,6 +7,8 @@ with open("Styles/Window/windowStyle.qss","r") as file:
     windowStyle = file.read()
 with open("Styles/editorStyle.qss","r") as file:
     editorStyle = file.read()
+with open("Styles/ToolbarButtons.qss","r") as file:
+    toolbarStyle = file.read()
 
 class Style():
     def __init__(self, pen : QPen, brush : QBrush = None):

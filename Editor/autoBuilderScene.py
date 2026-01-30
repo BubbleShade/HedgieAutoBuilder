@@ -15,13 +15,12 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QMenu,
+    QFileDialog
 )
-from . import PointDisplay, SideBar, Action
+import json, os, numpy, math
 import Styles
-import numpy, math
+from . import PointDisplay, SideBar, Action, Auto, Path, Waypoint, FieldMap, FieldImage
 from Tools import BezierCurve, clamp
-from . import Auto, Path, Waypoint
-from . import FieldMap, FieldImage
 
 class Camera(QGraphicsItem):
     def __init__(self, parent = None):
@@ -76,13 +75,13 @@ class AutoBuilderScene(QGraphicsScene):
         self.camera.setPos(-240,-150)
         
         # Add the items to the scene. Items are stacked in the order they are added.
-        self.auto = Auto(self,[Path([Waypoint(x=504,y=504), Waypoint(x=125,y=100),Waypoint(x=200,y=200)])])
+        self.auto : Auto = Auto(self,[Path([Waypoint(x=504,y=504), Waypoint(x=125,y=100),Waypoint(x=200,y=200)])])
 
-        self.auto.addToScene(self)
         self.fieldMap = FieldMap("Fields/Field2d_2025Bunnybots/")
         self.fieldImage = FieldImage(self.fieldMap)
         self.addItem(self.fieldImage)
 
+        self.auto.addToScene(self)
         self.auto.addToSideBar(self.sideBar)
 
         #pose1 = PoseDisplay(self)
@@ -94,6 +93,28 @@ class AutoBuilderScene(QGraphicsScene):
         self.curves : list[BezierCurve] = []
 
         self.context_menu = QMenu()
+    def save_as(self):
+        folderDialog = QFileDialog()
+        fileName = folderDialog.getSaveFileName(caption="Save As",filter="*.json")
+        if(fileName[0] == ""): return
+        with open(fileName[0], "w") as f:
+            json.dump(self.auto.getJsonFile(self.fieldMap), f, indent=4)
+    def open(self):
+        folderDialog = QFileDialog()
+        fileName = folderDialog.getOpenFileName(caption="Open File",filter="*.json")
+        print(fileName)
+        if(fileName[0] == ""): return
+        self.auto.delete()
+        with open(fileName[0], "r") as f:
+            self.auto = Auto.fromJsonFile(self, json.load(f),self.fieldMap)
+        print(self.auto.execution)
+        self.auto.addToScene(self)
+        self.auto.addToSideBar(self.sideBar)
+        self.update()
+
+            
+
+        
 
     def keyPressEvent(self, event):
         modifiers = QApplication.queryKeyboardModifiers()
@@ -102,6 +123,17 @@ class AutoBuilderScene(QGraphicsScene):
                 Action.redo()
             else:
                 Action.undo()
+        if event.key() == Qt.Key.Key_S and modifiers & Qt.KeyboardModifier.ControlModifier:
+            folderDialog = QFileDialog()
+            directory = folderDialog.getExistingDirectory()
+            with open(directory + "/path.json", "w") as f:
+                json.dump(self.auto.getJsonFile(self.fieldMap), f, indent=4)
+            print(directory)
+            
+
+            #print(self.auto.getJsonFile(self.fieldMap))
+            
+            
 
 
         
@@ -142,10 +174,6 @@ class AutoBuilderScene(QGraphicsScene):
         addWaypoint = context_menu.addAction("Add Waypoint")
         addPose = context_menu.addAction("Add Pose")
         addPath = context_menu.addAction("Add Path")
-        context_menu.addSection("test")
-        addPath = context_menu.addAction("Add Path")
-        addPath = context_menu.addAction("Add Path")
-
 
         addWaypoint.triggered.connect(lambda _:self.addPose(event.scenePos()))
         pos = AutoBuilderScene.calculateContextPosition(event.scenePos(), event.screenPos(), context_menu.width(), self.sceneRect().width())

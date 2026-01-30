@@ -26,7 +26,29 @@ def getHandlePos(point : QPointF, pointA : QPointF, pointB : QPointF) -> tuple[Q
     point2 = pointB - point
     A = unit(point1- point2)
     return A, -A
-   
+def pointFromJson(json : dict) -> QPointF:
+    return QPointF(json["x"], json["y"])
+
+def clear_layout(layout):
+    """
+    Recursively removes all items (widgets, sub-layouts, and spacers) from a layout.
+    """
+    if layout is not None:
+        # Loop in reverse order to safely remove items
+        for i in reversed(range(layout.count())):
+            item = layout.takeAt(i)
+            widget = item.widget()
+            if widget is not None:
+                # Remove and delete the widget
+                widget.setParent(None)
+                widget.deleteLater()
+            elif item.layout() is not None:
+                # Recurse into sub-layouts
+                clear_layout(item.layout())
+            
+            # It is the caller's responsibility to delete the item
+            del item
+
     """handle1 = pointA - point
     handle2 = pointB - point
         

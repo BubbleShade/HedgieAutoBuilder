@@ -20,6 +20,7 @@ from PyQt6.QtWidgets import (
 import Styles
 from Tools import Arrow, ArrowDrawer
 from . import DraggableGraphicsItem, BezierHandle
+
 class PointDisplay(DraggableGraphicsItem):
     def poseRect(self): return QRectF(-15,-15,30,30)
     def waypointRect(self): return QRectF(-10,-10,20,20)
@@ -54,6 +55,9 @@ class PointDisplay(DraggableGraphicsItem):
 
     def delete(self):
         self.scene.removeItem(self)
+        self.setParentItem(None)
+        self.hide()
+        print("kerpow")
 
     def undoDelete(self):
         self.scene.addItem(self)

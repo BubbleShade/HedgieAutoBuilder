@@ -16,7 +16,7 @@ from PyQt6.QtWidgets import (
     QWidget,
     QLabel
 )
-import Styles
+import Styles, Tools
 from . import DragWidget, WaypointLabel
 
 class PathLabel(QHBoxLayout):
@@ -35,6 +35,9 @@ class PathLabel(QHBoxLayout):
         self.poseLayout.setMaximumHeight(50 * len(self.poses))
 
         self.poseLayout.add_item(poseLabel)
+    def hide(self):
+        Tools.clear_layout(self)
+
     def create_waypoint_label(self, waypoint, name = None):
         if(name == None):
             self.i += 1

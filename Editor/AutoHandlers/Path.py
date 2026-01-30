@@ -3,6 +3,8 @@ from . import Waypoint
 import Styles
 import Tools
 from PyQt6.QtWidgets import QGraphicsScene
+
+from .. import FieldMap
 def handlePoseComposer(pose : PointDisplay, handle):
     return lambda _ =  None: handle.centerPos() + pose.center()
 
@@ -22,6 +24,7 @@ class Path():
         self.poseLabels = {}
         self.parentAuto = None
         self.pathDrawer = PathDrawer(self)
+        self.name = "Path1"
 
     def scene(self):
         if(self.parentAuto != None): return self.parentAuto.scene
@@ -126,3 +129,26 @@ class Path():
             if(i.dist(pos) > dist):
                 dist = i.dist(pos)
         return dist
+    def delete(self):
+        for i in range(len(self.waypoints)):
+            self.waypoints[i].parentPath = None
+            self.waypoints[i].delete()
+        self.sideBarItem.hide()
+        self.pathDrawer.delete()
+
+    def addToJson(self, json : dict, fieldMap : FieldMap):
+        json["execution"].append(("Path", self.name))
+        waypointJsonList = []
+        for waypoint in self.waypoints:
+            waypoint.addToJson(waypointJsonList, fieldMap)
+        json[self.name] = waypointJsonList
+    @staticmethod
+    def fromJsonFile(pathList, fieldMap : FieldMap):
+        waypoints = []
+        for i in pathList:
+            waypoints.append(Waypoint.fromJsonFile(i, fieldMap))
+        return Path(waypoints)
+    
+
+
+

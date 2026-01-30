@@ -6,42 +6,8 @@ from PyQt6.QtGui import QColor, QPixmap, QIcon, QPalette
 from PyQt6.QtWidgets import QApplication, QLabel
 
 from qframelesswindow import FramelessWindow, TitleBar, StandardTitleBar
-from Editor.editor import Editor
 import Styles
-class CustomTitleBar(StandardTitleBar):
-    """ Custom title bar """
-
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.setAutoFillBackground(True)
-        self.setBackgroundRole(QPalette.ColorRole.Highlight)
-
-        #self.setStyleSheet()
-        buttons = [self.minBtn, self.maxBtn, self.closeBtn]
-        for button in buttons:
-            button.setNormalColor(QColor(242, 246, 250))
-            button.setPressedColor(QColor(242, 246, 250))
-            button.setHoverColor(QColor(242, 246, 250))
-
-        for button in buttons[:-1]:
-            button.setHoverBackgroundColor(QColor(62, 62, 66))
-            button.setPressedBackgroundColor(QColor(54, 57, 65))
-        
-        # customize the style of title bar button
-        
-
-        # use qss to customize title bar button
-        self.maxBtn.setStyleSheet("""
-            TitleBarButton {
-                qproperty-pressedColor: white;
-                qproperty-pressedBackgroundColor: rgb(54, 57, 65);
-                qproperty-pressedBackgroundColor: rgb(54, 57, 65);
-            }
-        """)
-        #with open("./Window/windowStyle.qss","r") as file:
-        #    self.setStyleSheet(file.read())
-        #self.
-
+from . import CustomTitleBar
 
 class MainWindow(FramelessWindow):
 
@@ -56,9 +22,9 @@ class MainWindow(FramelessWindow):
         #self.label = QLabel(self)
         #self.label.setScaledContents(True)
         #self.label.setPixmap(QPixmap("Window/icons/LoneHeeg.png"))
-        self.editor = Editor(self)
+        self.editor = None
 
-        self.setWindowIcon(QIcon("Window/icons/LoneHeeg.png"))
+        self.setWindowIcon(QIcon("Window/icons/CutHeeg.png"))
         self.setWindowTitle("HedgeAuto")
         self.setStyleSheet(Styles.windowStyle)
         self.setMinimumSize(1000,600)
@@ -82,6 +48,8 @@ class MainWindow(FramelessWindow):
         # don't forget to call the resizeEvent() of super class
         super().resizeEvent(e)
         length = min(self.width(), self.height())
+        if(self.editor == None): return
+
         self.editor.resize(self.width(), self.height()-30)
         self.editor.move(
             0,

@@ -1,108 +1,46 @@
 from PyQt6.QtCore import QSize, Qt, QEvent
-from PyQt6.QtGui import QPalette
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QLabel, QHBoxLayout, QWidget, QToolButton, QStyle
-from Editor.editor import Editor
+from PyQt6.QtGui import QPalette, QColor, QFont
+from PyQt6.QtWidgets import QPushButton
+from qframelesswindow import StandardTitleBar
+import Styles
 
+class CustomTitleBar(StandardTitleBar):
+    """ Custom title bar """
 
-class CustomTitleBar(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
-        #self.setAutoFillBackground(True)
-        #self.setBackgroundRole(QPalette.ColorRole.Highlight)
-        self.initial_pos = None
-        title_bar_layout = QHBoxLayout(self)
-        title_bar_layout.setContentsMargins(1, 1, 1, 1)
-        title_bar_layout.setSpacing(2)
-
-        self.title = QLabel(f"{self.__class__.__name__}", self)
-        self.title.setStyleSheet(
-            """font-weight: bold;
-               border: 2px solid black;
-               border-radius: 12px;
-               margin: 2px;
-            """
-        )
-        self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        if title := parent.windowTitle():
-            self.title.setText(title)
-        title_bar_layout.addWidget(self.title)
+        self.setAutoFillBackground(True)
+        self.setBackgroundRole(QPalette.ColorRole.Highlight)
         
-        # Min button
-        self.min_button = QToolButton(self)
-        min_icon = self.style().standardIcon(
-            QStyle.StandardPixmap.SP_TitleBarMinButton
-        )
-        self.min_button.setIcon(min_icon)
-        self.min_button.clicked.connect(self.window().showMinimized)
+        self.hBoxLayout.removeWidget(self.titleLabel)
+        self.titleLabel.hide()
 
-        # Max button
-        self.max_button = QToolButton(self)
-        max_icon = self.style().standardIcon(
-            QStyle.StandardPixmap.SP_TitleBarMaxButton
-        )
-        self.max_button.setIcon(max_icon)
-        self.max_button.clicked.connect(self.window().showMaximized)
+        self.fileButton = QPushButton("File")
+        self.hBoxLayout.insertWidget(2,self.fileButton)
+        self.fileButton.setStyleSheet(Styles.toolbarStyle)
+        self.fileButton.setMinimumSize(QSize(46,32))
+        self.fileButton.setFont(QFont("'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", 10))
+        
 
-        # Close button
-        self.close_button = QToolButton(self)
-        close_icon = self.style().standardIcon(
-            QStyle.StandardPixmap.SP_TitleBarCloseButton
-        )
-        self.close_button.setIcon(close_icon)
-        self.close_button.clicked.connect(parent.close)
-
-        # Normal button
-        self.normal_button = QToolButton(self)
-        normal_icon = self.style().standardIcon(
-            QStyle.StandardPixmap.SP_TitleBarNormalButton
-        )
-        self.normal_button.setIcon(normal_icon)
-        self.normal_button.clicked.connect(parent.showNormal)
-        self.normal_button.setVisible(False)
-
-        buttons = [
-            self.min_button,
-            self.normal_button,
-            self.max_button,
-            self.close_button,
-        ]
+        #self.setStyleSheet()
+        buttons = [self.minBtn, self.maxBtn, self.closeBtn]
         for button in buttons:
-            button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-            button.setFixedSize(QSize(28, 28))
-            button.setStyleSheet(
-                """QToolButton { border: 2px solid white;
-                                 border-radius: 12px;
-                                }
-                """
-            )
-            title_bar_layout.addWidget(button)
-    def window_state_changed(self, state):
-        if state == Qt.WindowState.WindowMaximized:
-            self.normal_button.setVisible(True)
-            self.max_button.setVisible(False)
-        else:
-            self.normal_button.setVisible(False)
-            self.max_button.setVisible(True)
+            button.setNormalColor(QColor(242, 246, 250))
+            button.setPressedColor(QColor(242, 246, 250))
+            button.setHoverColor(QColor(242, 246, 250))
 
-    def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
-            self.initial_pos = event.pos()
-        super().mousePressEvent(event)
-        event.accept()
+        for button in buttons[:-1]:
+            button.setHoverBackgroundColor(QColor(62, 62, 66))
+            button.setPressedBackgroundColor(QColor(54, 57, 65))
+        
+        # customize the style of title bar button
+        
 
-    def mouseMoveEvent(self, event):
-        if self.initial_pos is not None:
-            delta = event.pos() - self.initial_pos
-            self.window().move(
-                self.window().x() + delta.x(),
-                self.window().y() + delta.y(),
-            )
-        super().mouseMoveEvent(event)
-        event.accept()
-    
-    def mouseReleaseEvent(self, event):
-        self.initial_pos = None
-        super().mouseReleaseEvent(event)
-        event.accept()
-
-    
+        # use qss to customize title bar button
+        self.maxBtn.setStyleSheet("""
+            TitleBarButton {
+                qproperty-pressedColor: white;
+                qproperty-pressedBackgroundColor: rgb(54, 57, 65);
+                qproperty-pressedBackgroundColor: rgb(54, 57, 65);
+            }
+        """)
