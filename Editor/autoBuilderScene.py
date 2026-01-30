@@ -93,11 +93,17 @@ class AutoBuilderScene(QGraphicsScene):
         self.curves : list[BezierCurve] = []
 
         self.context_menu = QMenu()
+        self.current_file = ""
     def save_as(self):
         folderDialog = QFileDialog()
         fileName = folderDialog.getSaveFileName(caption="Save As",filter="*.json")
         if(fileName[0] == ""): return
         with open(fileName[0], "w") as f:
+            json.dump(self.auto.getJsonFile(self.fieldMap), f, indent=4)
+        self.current_file = fileName[0]
+    def save(self):
+        if(self.current_file == ""): self.save_as(); return
+        with open(self.current_file, "w") as f:
             json.dump(self.auto.getJsonFile(self.fieldMap), f, indent=4)
     def open(self):
         folderDialog = QFileDialog()
@@ -111,6 +117,7 @@ class AutoBuilderScene(QGraphicsScene):
         self.auto.addToScene(self)
         self.auto.addToSideBar(self.sideBar)
         self.update()
+        self.current_file = fileName[0]
 
             
 
@@ -124,15 +131,10 @@ class AutoBuilderScene(QGraphicsScene):
             else:
                 Action.undo()
         if event.key() == Qt.Key.Key_S and modifiers & Qt.KeyboardModifier.ControlModifier:
-            folderDialog = QFileDialog()
-            directory = folderDialog.getExistingDirectory()
-            with open(directory + "/path.json", "w") as f:
-                json.dump(self.auto.getJsonFile(self.fieldMap), f, indent=4)
-            print(directory)
-            
-
-            #print(self.auto.getJsonFile(self.fieldMap))
-            
+            if(modifiers & Qt.KeyboardModifier.ShiftModifier):
+                self.save_as()
+            else:
+                self.save()            
             
 
 
