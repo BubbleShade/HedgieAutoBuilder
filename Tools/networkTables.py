@@ -63,8 +63,6 @@ class CustomDialog(QDialog):
                     timer.setParent(None)
                     timer.deleteLater()
 
-
-
             timer.timeout.connect(timerFun)
             timer.start(500)
              

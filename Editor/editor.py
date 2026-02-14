@@ -26,11 +26,13 @@ class Editor(QWidget):
         self.parent : CustomWindow
         Container = QVBoxLayout(self)
         topGuy = QHBoxLayout(self)
-        
-        # Define our layout.
-        vbox = SideBar()
 
-        self.scene = AutoBuilderScene(vbox)
+        # Define our layout.
+        sidBar = SideBar(self)
+
+        self.scene = AutoBuilderScene(sidBar)
+
+
         
         
 
@@ -38,7 +40,7 @@ class Editor(QWidget):
         view.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         hbox = QHBoxLayout(self)
-        hbox.addLayout(vbox)
+        hbox.addWidget(sidBar)
         hbox.addWidget(view)
         self.setStyleSheet(Styles.editorStyle)
         Container.addLayout(topGuy)

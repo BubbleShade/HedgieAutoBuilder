@@ -75,9 +75,6 @@ class Home(QWidget):
         self.Autos.addLayout(AutoBox(self), 0,0)
         self.Autos.addLayout(AutoBox(self, "D:\\Programming\\HedgieAutoBuilder\\New folder\\gerbabble.json"), 0,1)
         
-
-        
-        
     def show(self):
         super().show()
         titleBar : CustomTitleBar = self.parent().titleBar

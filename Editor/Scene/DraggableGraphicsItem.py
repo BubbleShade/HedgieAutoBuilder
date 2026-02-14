@@ -1,6 +1,7 @@
 import sys
 from .. import Action
 from PyQt6.QtCore import Qt, QPointF, QEvent, QRectF
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QBrush, QPainter, QPen
 from PyQt6.QtWidgets import (
     QApplication,
@@ -8,6 +9,7 @@ from PyQt6.QtWidgets import (
     QGraphicsItem,
     QGraphicsRectItem,
     QGraphicsScene,
+    QGraphicsObject,
     QGraphicsView,
     QHBoxLayout,
     QPushButton,
@@ -20,7 +22,8 @@ from PyQt6.QtWidgets import (
 import Styles
 from Tools import Arrow, ArrowDrawer
 
-class DraggableGraphicsItem(QGraphicsItem):
+class DraggableGraphicsItem(QGraphicsObject):
+    movedSignal = pyqtSignal(int)
     def __init__(self, scene : QGraphicsScene, canRotate = True, canMove = True):
         super(DraggableGraphicsItem, self).__init__()
         self.canRotate = canRotate
@@ -63,3 +66,8 @@ class DraggableGraphicsItem(QGraphicsItem):
 
     def center(self):
         return self.pos() 
+    
+    def itemChange(self, change, value):
+        if change == QGraphicsItem.GraphicsItemChange.ItemPositionChange:
+            self.movedSignal.emit(0)
+        return super().itemChange(change, value)

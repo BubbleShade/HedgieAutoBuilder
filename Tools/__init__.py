@@ -20,7 +20,15 @@ def angleBetween(pos1 : QPointF, pos2 : QPointF):
 def rotateVectorByAngle(pos : QPointF, theta):
     return QPointF(pos.x() * math.cos(theta) - pos.y() * math.sin(theta),
                    pos.x() * math.sin(theta) + pos.y() * math.cos(theta))
-
+def parseFloatString(string):
+    num = 0
+    if(string.startswith('.')):
+        string = "0" + string
+    if(string.endswith('.')):
+        string = string + "0"
+    if(string != ''):
+        num = float(string)
+    return num
 
 def getHandlePos(point : QPointF, pointA : QPointF, pointB : QPointF) -> tuple[QPointF,QPointF]:
     point1 = pointA - point

@@ -9,6 +9,16 @@ QPushButton {
     min-width: 5em;
     padding: 6px;
 }
+QHBoxLayout {
+    background-color: #183baf;
+    color: #FFFFFF;
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: #702300;
+    font: bold 14px;
+    min-width: 5em;
+}
 QLabel {
     background-color: #183baf;
     color: #FFFFFF;
@@ -18,7 +28,6 @@ QLabel {
     border-color: #702300;
     font: bold 14px;
     min-width: 5em;
-    padding: 1px;
 }
 QPushButton:pressed {
     background-color: #142f94;

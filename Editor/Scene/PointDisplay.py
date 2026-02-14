@@ -1,6 +1,7 @@
 import sys
 from .. import Action
 from PyQt6.QtCore import Qt, QPointF, QEvent, QRectF
+from PyQt6.QtCore import pyqtSignal as Signal
 from PyQt6.QtGui import QBrush, QPainter, QPen
 from PyQt6.QtWidgets import (
     QApplication,
@@ -30,14 +31,17 @@ class PointDisplay(DraggableGraphicsItem):
         self.setHasRotation(has_rotation)
         self.arrow = ArrowDrawer(QPointF(0, -11), QPointF(0, 11))
         self.waypointHandler = waypointHandler
+
         
         self.setParentItem(scene.camera)
+        self.scene = scene
         self.pen = QPen(Styles.toothPasteGray)
         self.pen.setWidth(3)
 
         self.canRotate = has_rotation
 
         self.handle.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIgnoresTransformations, True)
+        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemSendsGeometryChanges)
         if(isStatic): self.handle.hide()
         
     def drawPose(self, painter : QPainter, option, widget = ...):
