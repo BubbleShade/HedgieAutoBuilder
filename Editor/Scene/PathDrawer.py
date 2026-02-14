@@ -13,7 +13,9 @@ from PyQt6.QtWidgets import (
     QSlider,
     QVBoxLayout,
     QWidget,
-    QGraphicsPathItem
+    QGraphicsPathItem,
+    
+
     
 )
 import Styles
@@ -28,10 +30,9 @@ class PathDrawer(QGraphicsPathItem):
         self.pathParent = path
         self.setPen(Styles.curveStyle.pen)
         self.curves = []
-    def update(self):
+    def updatePath(self):
         self.curves = []
         data = self.pathParent.waypoints
-
 
         for i in data:
             i.poseDisplay.handle.hideHandles()
@@ -47,6 +48,15 @@ class PathDrawer(QGraphicsPathItem):
                 handlePoseComposer(pose1, pose1.handle.handle1),
                 handlePoseComposer(pose2, pose2.handle.handle2), 
                 pose2.center))
+        #self.paint(QPainter(), 0)
+        self.readyPaint()
+        
+        #if(self.parentItem() != None):
+        #    print("helos")
+        #    self
+        #    self.scene().update()
+        #    self.paint(QPainter(), 0)
+
     def _sourcePoint(self):
         return self.pathParent.waypoints[0].pos()
 
@@ -85,6 +95,9 @@ class PathDrawer(QGraphicsPathItem):
             path.cubicTo(curve[0](), curve[1](), curve[2]())
         return path
 
+    def readyPaint(self):
+        path = self.bezierPath()
+        self.setPath(path)
 
     def paint(self, painter: QPainter, option, widget=None) -> None:
         painter.setPen(self.pen())

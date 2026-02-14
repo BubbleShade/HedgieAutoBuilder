@@ -72,6 +72,7 @@ class Editor(QWidget):
         
     def show(self):
         super().show()
+        self.scene.reset_camera()
         titleBar : CustomTitleBar = self.parent().titleBar
         self.fileFun = lambda : self.fileMenu.exec(titleBar.fileButton.mapToGlobal(QPoint(0,32)))
         titleBar.fileButton.pressed.connect(self.fileFun)

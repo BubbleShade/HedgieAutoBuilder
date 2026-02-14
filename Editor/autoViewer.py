@@ -19,9 +19,10 @@ from PyQt6.QtWidgets import (
 )
 import json, os, numpy, math
 import Styles
-from . import PointDisplay, SideBar, Action, Auto, Path, Waypoint, FieldMap, FieldImage
+from . import PointDisplay, SideBar, Action, Auto, Path, Waypoint, FieldMap
 from Tools import BezierCurve, clamp
 import Tools
+from Fields.Field2D_2026Rebuilt import RebuiltMap
 
 class Camera(QGraphicsItem):
     def __init__(self, parent = None):
@@ -63,31 +64,27 @@ class Camera(QGraphicsItem):
         return (pos*self.scale()) - self.pos()
         
 class AutoViewer(QGraphicsScene):
-    def __init__(self, size : QRectF = QRectF(0,0,200,200), fieldMap : FieldMap = FieldMap("Fields/Field2d_2026Rebuilt/")):
+    def __init__(self, size : QRectF = QRectF(0,0,200,200), fieldMap : RebuiltMap = RebuiltMap()):
         super().__init__(size)
         self.camera = Camera()
         self.camera.setZoom(0.4)
         self.addItem(self.camera)
         self.addItem = self.addItemToCamera
 
-        #self.camera.setScale(1)
         self.camera.setPos(0,0)
         
         # Add the items to the scene. Items are stacked in the order they are added.
         self.auto : Auto = Auto(self,[])
 
-        self.fieldMap = fieldMap
-        self.fieldImage = FieldImage(self.fieldMap)
-        self.addItem(self.fieldImage)
-
-        #self.auto.addToStaticScene(self)
+        self.fieldMap = RebuiltMap()
+        self.addItem(self.fieldMap)
 
         self.context_menu = QMenu()
     @staticmethod
     def fromJson(self, 
                  autoJson : dict,
                  size : QRectF = QRectF(0,0,200,200), 
-                 fieldMap : FieldMap = FieldMap("Fields/Field2d_2026Rebuilt/"),
+                 fieldMap : RebuiltMap = RebuiltMap(),
                  ):
         viewer = AutoViewer(size, fieldMap)
         viewer.auto.delete()

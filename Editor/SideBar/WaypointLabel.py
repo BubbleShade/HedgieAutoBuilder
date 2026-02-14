@@ -16,17 +16,19 @@ from PyQt6.QtWidgets import (
     QWidget,
     QLabel,
     QMenu,
-    QLineEdit
+    QLineEdit,
+    QFrame
 )
 import Styles, Tools
 from .. import FieldMap
 
-class WaypointLabel(QWidget):
+class WaypointLabel(QFrame):
     def __init__(self, name : str, waypointHandler = None, parentLayout : QVBoxLayout = None):
         super().__init__()
         self.handler = waypointHandler
 
         self.label = QLabel(name)
+
         self.xInput = QLineEdit()
         self.yInput = QLineEdit()
 
@@ -36,11 +38,10 @@ class WaypointLabel(QWidget):
 
         self.waypointHandler = waypointHandler
         self.parentLayout = parentLayout
-        self.setMaximumHeight(50)
-        self.setMaximumWidth(200)
+        self.setMaximumHeight(45)
+        self.setFixedHeight(45)
+        self.setMaximumWidth(250)
 
-        #self.label.setMaximumWidth(30)
-        #self.label.setMinimumHeight(50)
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setStyleSheet(Styles.waypointLabelStyle)
 

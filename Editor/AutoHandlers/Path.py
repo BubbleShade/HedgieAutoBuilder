@@ -32,7 +32,7 @@ class Path():
 
     def updateScene(self,scene : QGraphicsScene):
         if(scene == None): return
-        self.pathDrawer.update()
+        self.pathDrawer.updatePath()
 
     def remove(self, waypoint : Waypoint):
         self.waypoints.remove(waypoint)
@@ -55,7 +55,7 @@ class Path():
         
             
         self.waypoints[i1], self.waypoints[i2] = self.waypoints[i2], self.waypoints[i1]
-        self.pathDrawer.update()
+        self.pathDrawer.updatePath()
 
 
 
@@ -114,13 +114,13 @@ class Path():
         for i in self.waypoints:
             i.addDisplay(scene)
         self.pathDrawer.setParentItem(scene.camera)
-        self.pathDrawer.update()
+        self.pathDrawer.updatePath()
     def addToStaticScene(self, scene : QGraphicsScene):
         for i in self.waypoints:
             i.addDisplay(scene, True)
         self.pathDrawer.setParentItem(scene.camera)
         self.pathDrawer.pen().setWidth(40)
-        self.pathDrawer.update()
+        self.pathDrawer.updatePath()
 
     def addToSideBar(self, sideBar : SideBar):
         self.sideBarItem = PathLabel()

@@ -19,18 +19,17 @@ from PyQt6.QtWidgets import (
 )
 import json, os, numpy, math
 import Styles
-from . import PointDisplay, SideBar, Action, Auto, Path, Waypoint, FieldMap, FieldImage
+from . import PointDisplay, SideBar, Action, Auto, Path, Waypoint
 from Tools import BezierCurve, clamp
 import Tools
+from Fields.Field2D_2026Rebuilt import RebuiltMap
 
 class Camera(QGraphicsItem):
     def __init__(self, parent = None):
-        super().__init__(parent)
+        super().__init__()
         self.zoomLevel = 1
 
     def setCenterPos(self, pos):
-        print(self.scene().sceneRect().width())
-        #print(f"location: ${QPointF(self.scene().width(), self.scene().height())/2}")
         self.setPos(pos - QPointF(self.scene().width(), self.scene().height())/2)
     def paint(self, painter, option, widget = ...): pass
     def boundingRect(self):
@@ -39,13 +38,23 @@ class Camera(QGraphicsItem):
         self.inflate = 0
         self.area = screen_rect.copy()
         return self.image.subsurface(self.area)
+    def setZoom(self, zoom):
+        self.zoomLevel = zoom
+        origin = QPointF(0,0)
+        transform = QTransform()
+        transform.translate(origin.x(), origin.y())
+        transform.scale(self.zoomLevel, self.zoomLevel)
+        transform.translate(-origin.x(), -origin.y())
+        self.setTransform(transform)
+
 
     def zoom(self, amount, eventPos : QPointF= None):
-        #print(f"event: {eventPos}  + cam: {self.pos()}")
         startZoomLevel = self.zoomLevel
         mult = 1 + 0.02 * amount
         self.zoomLevel = clamp(self.zoomLevel * mult, 0.5, 2.0) 
         if(startZoomLevel == self.zoomLevel): return
+        if(eventPos == None):
+            eventPos = QPointF(0,0)
         origin = eventPos  - self.pos()
         transform = QTransform()
         transform.translate(origin.x(), origin.y())
@@ -72,9 +81,8 @@ class AutoBuilderScene(QGraphicsScene):
         # Add the items to the scene. Items are stacked in the order they are added.
         self.auto : Auto = Auto(self,[Path([Waypoint(x=504,y=504), Waypoint(x=125,y=100),Waypoint(x=200,y=200)])])
 
-        self.fieldMap = FieldMap("Fields/Field2d_2026Rebuilt/")
-        self.fieldImage = FieldImage(self.fieldMap)
-        self.addItem(self.fieldImage)
+        self.fieldMap = RebuiltMap()
+        self.addItem(self.fieldMap)
 
         self.auto.addToScene(self)
         self.auto.addToSideBar(self.sideBar)        
@@ -82,6 +90,11 @@ class AutoBuilderScene(QGraphicsScene):
 
         self.context_menu = QMenu()
         self.current_file = ""
+    def reset_camera(self):
+        self.camera.setZoom(1)
+        self.camera.setPos(-240,-150)
+        
+
     def save_as(self):
         folderDialog = QFileDialog()
         fileName = folderDialog.getSaveFileName(caption="Save As",filter="*.json")
@@ -107,7 +120,6 @@ class AutoBuilderScene(QGraphicsScene):
     def open(self):
         folderDialog = QFileDialog()
         fileName = folderDialog.getOpenFileName(caption="Open File",filter="*.json")
-        print(fileName)
         if(fileName[0] == ""): return
         self.changeAutoFromFile(fileName[0])
 
@@ -182,13 +194,11 @@ class AutoBuilderScene(QGraphicsScene):
         context_menu.exec(pos)
         
     def calculateContextPosition(eventScenePos : QPointF, eventScreenPos : QPoint, menuWidth : float, contextWidth: float) -> QPoint:
-        #print(f"scene pos: {eventScenePos}\n menu width: {menuWidth}\n context width: {contextWidth}")
         if(contextWidth + eventScenePos.x() > menuWidth):
             return (eventScreenPos- QPoint(menuWidth, 0))
         else: return eventScreenPos
 
     def addPose(self, position: QPointF):
-        print(position, self.camera.scenePosToCamera(position))
         position = self.camera.scenePosToCamera(position)
         pose = Waypoint(self.auto.getClosestPath(position), position.x(),position.y())
         pose.addDisplay(self)
