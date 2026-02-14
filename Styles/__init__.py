@@ -31,7 +31,7 @@ black = QColor(0,0,0)
 
 poseStyle = Style(QPen(darkGray, 3, cap = Qt.PenCapStyle.SquareCap))
 waypointStyle = Style(QPen(darkGray, 3, cap = Qt.PenCapStyle.SquareCap), QBrush(darkerGray))
-curveStyle = Style(QPen(darkishGray, 2, cap = Qt.PenCapStyle.SquareCap), Qt.BrushStyle.NoBrush)
+curveStyle = Style(QPen(darkishGray, 3, cap = Qt.PenCapStyle.SquareCap), Qt.BrushStyle.NoBrush)
 bezierHandleStyle = Style(QPen(darkerGray, 3), QBrush(darkishGray))
 
 

@@ -102,7 +102,12 @@ class BezierHandle(QGraphicsItem):
 
         #self.arrow.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, False)
         #self.arrow.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable, False)
-
+    def hide(self):
+        super().hide()
+        print("HIde")
+        self.handle1.hide()
+        self.handle2.hide()
+    
     def linePos1(self):
         if(not self.handle1.isVisible()): return QPointF(0,0)
         return self.handle1.centerPos()
@@ -125,8 +130,9 @@ class BezierHandle(QGraphicsItem):
         self.handle2.hide()
 
     def setHandleMode(self,handle1 : bool, handle2 : bool):
-        self.handle1.setVisible(handle1)
-        self.handle2.setVisible(handle2)
+        if(self.isVisible()):
+            self.handle1.setVisible(handle1)
+            self.handle2.setVisible(handle2)
     def paint(self, painter, option, widget = ...): pass   
     def boundingRect(self): return QRectF(0,0,0,0)
 

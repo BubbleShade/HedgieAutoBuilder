@@ -1,0 +1,10 @@
+{
+  "name": "2026 Rebuilt",
+  "isFTC": false,
+  "coordinateSystem": "wall-blue",
+  "sourceUrl": "https://team1540.org/bunnybots",
+  "topLeft": [63, 6],
+  "bottomRight": [1103, 514],
+  "widthInches": 658.328,
+  "heightInches": 316
+}

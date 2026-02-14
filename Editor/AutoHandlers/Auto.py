@@ -30,6 +30,10 @@ class Auto():
         for i in self.execution:
             if(i.addToScene !=  None):
                 i.addToScene(scene)
+    def addToStaticScene(self, scene):
+        for i in self.execution:
+            if(i.addToStaticScene !=  None):
+                i.addToStaticScene(scene)
     def addToSideBar(self, sideBar):
         for i in self.execution:
             i.addToSideBar(sideBar)

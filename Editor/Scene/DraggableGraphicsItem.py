@@ -21,15 +21,20 @@ import Styles
 from Tools import Arrow, ArrowDrawer
 
 class DraggableGraphicsItem(QGraphicsItem):
-    def __init__(self, scene : QGraphicsScene, canRotate = True):
+    def __init__(self, scene : QGraphicsScene, canRotate = True, canMove = True):
         super(DraggableGraphicsItem, self).__init__()
         self.canRotate = canRotate
 
-        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
-        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
+        if(canMove):
+            self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
+            self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
+        else:
+            self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, False)
+            self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable, False)
 
         self.scene : QGraphicsScene = scene
         self.startPosition = self.pos()
+    
     def createUndoMoveAction(this, startPos, endPos):
         return Action.Action(lambda : this.setPos(startPos), lambda : this.setPos(endPos))    
     def wheelEvent(self, QWheelEvent):

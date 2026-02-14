@@ -6,6 +6,7 @@ import math
 from Tools.arrow import Arrow, ArrowDrawer
 from Tools.line import Line
 from Tools.bezierCurve import BezierCurve
+import Tools.networkTables as networkTables
 
 def clamp(value, min_value, max_value):
     return min(max(value, min_value), max_value)

@@ -52,110 +52,54 @@ class Camera(QGraphicsItem):
         transform.scale(self.zoomLevel, self.zoomLevel)
         transform.translate(-origin.x(), -origin.y())
         self.setTransform(transform)
+    def setZoom(self, zoomLevel):
+        #print(f"event: {eventPos}  + cam: {self.pos()}")
+        startZoomLevel = self.zoomLevel
+        self.zoomLevel = zoomLevel 
+        transform = QTransform()
+        transform.scale(self.zoomLevel, self.zoomLevel)
+        self.setTransform(transform)
     def scenePosToCamera(self, pos):
         return (pos*self.scale()) - self.pos()
         
-class AutoBuilderScene(QGraphicsScene):
-    def __init__(self, sideBar : SideBar, size : QRectF = QRectF(0,0,200,200)):
+class AutoViewer(QGraphicsScene):
+    def __init__(self, size : QRectF = QRectF(0,0,200,200), fieldMap : FieldMap = FieldMap("Fields/Field2d_2026Rebuilt/")):
         super().__init__(size)
-        self.sideBar = sideBar
         self.camera = Camera()
+        self.camera.setZoom(0.4)
         self.addItem(self.camera)
         self.addItem = self.addItemToCamera
 
-        self.isDragging = False
-        self.dragStartPos = QPointF()
-        self.dragScenePos = QPointF()
         #self.camera.setScale(1)
-        self.camera.setPos(-240,-150)
+        self.camera.setPos(0,0)
         
         # Add the items to the scene. Items are stacked in the order they are added.
-        self.auto : Auto = Auto(self,[Path([Waypoint(x=504,y=504), Waypoint(x=125,y=100),Waypoint(x=200,y=200)])])
+        self.auto : Auto = Auto(self,[])
 
-        self.fieldMap = FieldMap("Fields/Field2d_2026Rebuilt/")
+        self.fieldMap = fieldMap
         self.fieldImage = FieldImage(self.fieldMap)
         self.addItem(self.fieldImage)
 
-        self.auto.addToScene(self)
-        self.auto.addToSideBar(self.sideBar)        
-        self.i = 3
+        #self.auto.addToStaticScene(self)
 
         self.context_menu = QMenu()
-        self.current_file = ""
-    def save_as(self):
-        folderDialog = QFileDialog()
-        fileName = folderDialog.getSaveFileName(caption="Save As",filter="*.json")
-        if(fileName[0] == ""): return
-        with open(fileName[0], "w") as f:
-            json.dump(self.auto.getJsonFile(self.fieldMap), f, indent=4)
-        self.current_file = fileName[0]
-    def save(self):
-        if(self.current_file == ""): self.save_as(); return
-        with open(self.current_file, "w") as f:
-            json.dump(self.auto.getJsonFile(self.fieldMap), f, indent=4)
-    def changeAutoTo(self, auto : Auto):
-        self.auto.delete()
-        self.auto = auto
-        self.auto.addToScene(self)
-        self.auto.addToSideBar(self.sideBar)
-        self.update()
-    def changeAutoFromFile(self, fileName : str):
-        with open(fileName, "r") as f:
-            auto = Auto.fromJsonFile(self, json.load(f),self.fieldMap)
-            self.changeAutoTo(auto)        
-        self.current_file = fileName
-    def open(self):
-        folderDialog = QFileDialog()
-        fileName = folderDialog.getOpenFileName(caption="Open File",filter="*.json")
-        print(fileName)
-        if(fileName[0] == ""): return
-        self.changeAutoFromFile(fileName[0])
+    @staticmethod
+    def fromJson(self, 
+                 autoJson : dict,
+                 size : QRectF = QRectF(0,0,200,200), 
+                 fieldMap : FieldMap = FieldMap("Fields/Field2d_2026Rebuilt/"),
+                 ):
+        viewer = AutoViewer(size, fieldMap)
+        viewer.auto.delete()
+        viewer.auto = Auto.fromJsonFile(viewer,autoJson, fieldMap)
+        viewer.auto.addToStaticScene(viewer)
+        return viewer
+
 
     def publish(self):
         Tools.networkTables.push_auto_to_network_tables(
             self.auto.getJsonFile(self.fieldMap)
             )
-
-            
-
-        
-
-    def keyPressEvent(self, event):
-        modifiers = QApplication.queryKeyboardModifiers()
-        if event.key() == Qt.Key.Key_Z and  modifiers & Qt.KeyboardModifier.ControlModifier:
-            if(modifiers & Qt.KeyboardModifier.ShiftModifier):
-                Action.redo()
-            else:
-                Action.undo()
-        if event.key() == Qt.Key.Key_S and modifiers & Qt.KeyboardModifier.ControlModifier:
-            if(modifiers & Qt.KeyboardModifier.ShiftModifier):
-                self.save_as()
-            else:
-                self.save()
-        if event.key() == Qt.Key.Key_P and modifiers & Qt.KeyboardModifier.ControlModifier:
-            self.publish()
-  
-            
-
-
-        
-    def mousePressEvent(self, event):
-        super().mousePressEvent(event)
-        if(not event.isAccepted()):
-            #self.camera.setPos(self.camera.pos() + QPointF(10,0))
-            #self.camera.setScale(self.camera.scale())
-            self.isDragging = True
-            self.dragScenePos = event.scenePos()
-            self.dragStartPos = self.camera.pos()
-
-    def mouseReleaseEvent(self, event):
-        super().mouseReleaseEvent(event)
-        self.isDragging = False
-
-    def mouseMoveEvent(self, event):
-        super().mouseMoveEvent(event)
-        if(self.isDragging):
-            self.camera.setPos(self.dragStartPos + (event.scenePos() - self.dragScenePos))
 
     def wheelEvent(self, event):
         super().wheelEvent(event)
@@ -178,7 +122,7 @@ class AutoBuilderScene(QGraphicsScene):
         addPath = context_menu.addAction("Add Path")
 
         addWaypoint.triggered.connect(lambda _:self.addPose(event.scenePos()))
-        pos = AutoBuilderScene.calculateContextPosition(event.scenePos(), event.screenPos(), context_menu.width(), self.sceneRect().width())
+        pos = AutoViewer.calculateContextPosition(event.scenePos(), event.screenPos(), context_menu.width(), self.sceneRect().width())
         context_menu.exec(pos)
         
     def calculateContextPosition(eventScenePos : QPointF, eventScreenPos : QPoint, menuWidth : float, contextWidth: float) -> QPoint:

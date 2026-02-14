@@ -24,8 +24,17 @@ class MainWindow(FramelessWindow):
         #self.label.setPixmap(QPixmap("Window/icons/LoneHeeg.png"))
         self.editor = None
 
-        self.setWindowIcon(QIcon("Window/icons/CutHeeg.png"))
-        self.setWindowTitle("HedgeAuto")
+        icon = QIcon("Window/icons/CutHeeg.png")
+        icon.addFile("Window/icons/CutHeeg.png", QSize(16,16))
+        icon.addFile("Window/icons/CutHeeg.png", QSize(24,24))
+
+        icon.addFile("Window/icons/CutHeeg.png", QSize(32,32))
+        icon.addFile("Window/icons/CutHeeg.png", QSize(48,48))
+
+        icon.addFile("Window/icons/CutHeeg.png", QSize(256,256))
+
+        self.setWindowIcon(icon)
+        self.setWindowTitle("QuillT")
         self.setStyleSheet(Styles.windowStyle)
         self.setMinimumSize(1000,600)
         self.setMinimumSize(400,200)
@@ -43,7 +52,21 @@ class MainWindow(FramelessWindow):
             self.titleBar.minBtn.hide()
             self.titleBar.maxBtn.hide()
             self.titleBar.closeBtn.hide()
+    def setFocus(self, other):
+        self.editor.hide()
+        self.editor = other
+        other.show()
+        length = min(self.width(), self.height())
+        if(self.editor == None): return
 
+        self.editor.resize(self.width(), self.height()-30)
+        self.editor.move(
+            0,
+            30
+        )
+        
+
+        
     def resizeEvent(self, e):
         # don't forget to call the resizeEvent() of super class
         super().resizeEvent(e)

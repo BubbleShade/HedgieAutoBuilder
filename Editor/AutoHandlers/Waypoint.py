@@ -48,8 +48,8 @@ class Waypoint():
     def setParent(self, parentPath):
         self.parentPath = parentPath
 
-    def addDisplay(self, scene):
-        self.poseDisplay = PointDisplay(scene, self, has_rotation=self.startHeading != None)
+    def addDisplay(self, scene, isStatic = False):
+        self.poseDisplay = PointDisplay(scene, self, has_rotation=self.startHeading != None, isStatic=isStatic)
         self.poseDisplay.setPos(self.startX, self.startY)
         if(self.startHeading != None):
             self.poseDisplay.setRotation(self.startHeading)
@@ -74,16 +74,16 @@ class Waypoint():
     def getDict(self, fieldMap : FieldMap):
         data = {}
         if(self.poseDisplay.handle.handle1.isVisible()):
-            data["prevControl"] = [self.poseDisplay.handle.handle1.pos().x(), 
+            data["nextControl"] = [self.poseDisplay.handle.handle1.pos().x(), 
                                    self.poseDisplay.handle.handle1.pos().y()]
         else:
-            data["prevControl"] = None
+            data["nextControl"] = None
 
         if(self.poseDisplay.handle.handle2.isVisible()):
-            data["nextControl"] = [self.poseDisplay.handle.handle2.pos().x(),
+            data["prevControl"] = [self.poseDisplay.handle.handle2.pos().x(),
                                    self.poseDisplay.handle.handle2.pos().y()]
         else:
-            data["nextControl"] = None
+            data["prevControl"] = None
         
         data["anchor"] = [self.x(), self.y]
         return data
@@ -93,12 +93,12 @@ class Waypoint():
             raise RuntimeError("Attempted to export json file before waypoints indexed")
         if(self.poseDisplay.handle.handle1.isVisible()):
             handle1Pos = fieldMap.screen_pos_to_field(self.poseDisplay.handle.handle1.pos())
-            json["prevControl"] = {"x":handle1Pos.x(), "y":handle1Pos.y()}
-        else: json["prevControl"] = None
+            json["nextControl"] = {"x":handle1Pos.x(), "y":handle1Pos.y()}
+        else: json["nextControl"] = None
         if(self.poseDisplay.handle.handle2.isVisible()):
             handle2Pos = fieldMap.screen_pos_to_field(self.poseDisplay.handle.handle2.pos())
-            json["nextControl"] = {"x":handle2Pos.x(), "y":handle2Pos.y()}
-        else: json["nextControl"] = None
+            json["prevControl"] = {"x":handle2Pos.x(), "y":handle2Pos.y()}
+        else: json["prevControl"] = None
         anchorPos = fieldMap.screen_pos_to_field(self.pos())
         json["anchor"] = {"x":anchorPos.x(), "y":anchorPos.y()}
         if(self.poseDisplay.canRotate):
@@ -113,8 +113,8 @@ class Waypoint():
         print(waypoint.pos())
 
         if(json["prevControl"] != None):
-            waypoint.ctrlPoint1 = fieldMap.field_pos_to_screen(Tools.pointFromJson(json["prevControl"]))
+            waypoint.ctrlPoint2 = fieldMap.field_pos_to_screen(Tools.pointFromJson(json["prevControl"]))
         if(json["nextControl"] != None):
-            waypoint.ctrlPoint2 = fieldMap.field_pos_to_screen(Tools.pointFromJson(json["nextControl"]))
+            waypoint.ctrlPoint1 = fieldMap.field_pos_to_screen(Tools.pointFromJson(json["nextControl"]))
         return waypoint
 

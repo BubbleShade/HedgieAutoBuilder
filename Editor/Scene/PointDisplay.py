@@ -24,8 +24,8 @@ from . import DraggableGraphicsItem, BezierHandle
 class PointDisplay(DraggableGraphicsItem):
     def poseRect(self): return QRectF(-15,-15,30,30)
     def waypointRect(self): return QRectF(-10,-10,20,20)
-    def __init__(self, scene : QGraphicsScene, waypointHandler, has_rotation :bool = False):
-        super(PointDisplay, self).__init__(scene)
+    def __init__(self, scene : QGraphicsScene, waypointHandler, has_rotation :bool = False, isStatic= False):
+        super(PointDisplay, self).__init__(scene, canMove=not isStatic)
         self.handle = BezierHandle(self)
         self.setHasRotation(has_rotation)
         self.arrow = ArrowDrawer(QPointF(0, -11), QPointF(0, 11))
@@ -38,6 +38,7 @@ class PointDisplay(DraggableGraphicsItem):
         self.canRotate = has_rotation
 
         self.handle.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIgnoresTransformations, True)
+        if(isStatic): self.handle.hide()
         
     def drawPose(self, painter : QPainter, option, widget = ...):
         if(not self.isVisible()): return

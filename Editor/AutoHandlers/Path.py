@@ -115,6 +115,12 @@ class Path():
             i.addDisplay(scene)
         self.pathDrawer.setParentItem(scene.camera)
         self.pathDrawer.update()
+    def addToStaticScene(self, scene : QGraphicsScene):
+        for i in self.waypoints:
+            i.addDisplay(scene, True)
+        self.pathDrawer.setParentItem(scene.camera)
+        self.pathDrawer.pen().setWidth(40)
+        self.pathDrawer.update()
 
     def addToSideBar(self, sideBar : SideBar):
         self.sideBarItem = PathLabel()
@@ -133,7 +139,8 @@ class Path():
         for i in range(len(self.waypoints)):
             self.waypoints[i].parentPath = None
             self.waypoints[i].delete()
-        self.sideBarItem.hide()
+        if(self.sideBarItem != None):
+            self.sideBarItem.hide()
         self.pathDrawer.delete()
 
     def addToJson(self, json : dict, fieldMap : FieldMap):

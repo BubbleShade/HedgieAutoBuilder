@@ -31,7 +31,7 @@ class Editor(QWidget):
         vbox = SideBar()
 
         self.scene = AutoBuilderScene(vbox)
-    
+        
         
 
         view = QGraphicsView(self.scene)
@@ -48,17 +48,46 @@ class Editor(QWidget):
 
         self.fileMenu = QMenu()
         self.fileMenu.setStyleSheet(Styles.contextMenuStyle)
-        saveButton = self.fileMenu.addAction("Save As...")
-        saveButton.triggered.connect(self.scene.save_as)
+        saveAsButton = self.fileMenu.addAction("Save As...")
+        saveAsButton.triggered.connect(self.scene.save_as)
+        saveButton = self.fileMenu.addAction("Save")
+        saveButton.triggered.connect(self.scene.save)
+
+        self.fileMenu.addSection("Bannan")
+
         openButton = self.fileMenu.addAction("Open File...")
         openButton.triggered.connect(self.scene.open)
-        self.show()
+
+        self.fileMenu.addSection("Bannan")
+        publishButton = self.fileMenu.addAction("Publish")
+        publishButton.triggered.connect(self.scene.publish)
+        self.fileFun = None
+        self.backFun = None
+        self.back = None
+
+        self.hide()
         
         
     def show(self):
         super().show()
         titleBar : CustomTitleBar = self.parent().titleBar
-        titleBar.fileButton.pressed.connect(lambda : self.fileMenu.exec(titleBar.fileButton.mapToGlobal(QPoint(0,32))))
+        self.fileFun = lambda : self.fileMenu.exec(titleBar.fileButton.mapToGlobal(QPoint(0,32)))
+        titleBar.fileButton.pressed.connect(self.fileFun)
+        titleBar.backButton.setHidden(self.back == None)
+        if(self.back != None):
+            self.backFun = lambda : self.parent().setFocus(self.back)
+            titleBar.backButton.pressed.connect(self.backFun)
+
+
+        
+    def hide(self):
+        super().hide()
+        titleBar : CustomTitleBar = self.parent().titleBar
+        if(self.fileFun != None):
+            titleBar.fileButton.pressed.disconnect(self.fileFun)
+        if(self.backFun != None):
+            titleBar.backButton.pressed.disconnect(self.backFun)
+
         
         
     
