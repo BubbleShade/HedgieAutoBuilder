@@ -125,6 +125,7 @@ class AutoBuilderScene(QGraphicsScene):
 
     def publish(self):
         Tools.networkTables.push_auto_to_network_tables(
+            self.parent(),
             self.auto.getJsonFile(self.fieldMap)
             )
 

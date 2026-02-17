@@ -36,7 +36,7 @@ class FieldObject():
     def rotate(map, point: QPointF):
         print(map.boundingRect().width())
 
-        return QPointF(map.boundingRect().width(), map.boundingRect().height()) - point
+        return map.box - point
     @staticmethod
     def rotateRect(map, rect: QRectF):
         return QRectF(FieldObject.rotate(map,rect.topLeft()), FieldObject.rotate(map,rect.bottomRight()))
@@ -51,38 +51,64 @@ class Hub(FieldObject):
         self.bottomRight = map.inch_pos_to_screen(redHubPos + QPointF(redHubWidth/2, -redHubWidth/2))
 
         self.rects = [QRectF(self.topLeft, self.bottomRight)]
-bumpWidth = 45
+bumpWidth = 44.5
 bumpLength = 73
 class Bumps(FieldObject):
     def __init__(self,map):
         self.map = map
 
         self.topLeft = map.inch_pos_to_screen(redHubPos + QPointF(-bumpWidth/2, bumpWidth/2 + bumpLength))
-        self.topRight2 = map.inch_pos_to_screen(redHubPos + QPointF(0, bumpWidth/2))
-        self.topRight1 = map.inch_pos_to_screen(redHubPos + QPointF(bumpWidth/2, bumpWidth/2))
+        self.topRight = map.inch_pos_to_screen(redHubPos + QPointF(bumpWidth/2, bumpWidth/2))
 
         self.bottomLeft = map.inch_pos_to_screen(redHubPos + QPointF(-bumpWidth/2, -bumpWidth/2 - bumpLength))
-        self.bottomRight2 = map.inch_pos_to_screen(redHubPos + QPointF(0, -bumpWidth/2))
-        self.bottomRight1 = map.inch_pos_to_screen(redHubPos + QPointF(bumpWidth/2, -bumpWidth/2))
+        self.bottomRight = map.inch_pos_to_screen(redHubPos + QPointF(bumpWidth/2, -bumpWidth/2))
 
-        self.rects = [QRectF(self.topLeft, self.topRight1), 
-                      QRectF(self.topLeft, self.topRight2), 
-                      QRectF(self.bottomLeft, self.bottomRight1),
-                      QRectF(self.bottomLeft, self.bottomRight2)]
+        self.rects = [QRectF(self.topLeft, self.topRight), 
+                      QRectF(self.bottomLeft, self.bottomRight)]
+
+class Bumperson(FieldObject):
+    def __init__(self,map):
+        self.map = map
+        width = 0.75
+
+        self.topLeft = map.inch_pos_to_screen(redHubPos + QPointF(-width, bumpWidth/2 + bumpLength))
+        self.topRight = map.inch_pos_to_screen(redHubPos + QPointF(width, bumpWidth/2))
+
+        self.bottomLeft = map.inch_pos_to_screen(redHubPos + QPointF(-width, -bumpWidth/2 - bumpLength))
+        self.bottomRight = map.inch_pos_to_screen(redHubPos + QPointF(width, -bumpWidth/2))
+
+        self.rects = [QRectF(self.topLeft, self.topRight), 
+                      QRectF(self.bottomLeft, self.bottomRight)]
 
 trenchBlockLength = 12
-class Trenches(FieldObject):
+class TrencherSon(FieldObject):
     def __init__(self,map):
         self.map = map
 
         self.rects = []
         topLeft = map.inch_pos_to_screen(redHubPos + QPointF(-redHubWidth/2, redHubWidth/2 + bumpLength + trenchBlockLength))
-        bottomRight = map.inch_pos_to_screen(redHubPos + QPointF(redHubWidth/2, redHubWidth/2 + bumpLength))
+        bottomRight = map.inch_pos_to_screen(redHubPos + QPointF(redHubWidth/2, redHubWidth/2 + bumpLength-1))
 
         self.rects.append(QRectF(topLeft, bottomRight))
 
         topLeft = map.inch_pos_to_screen(redHubPos + QPointF(-redHubWidth/2, -redHubWidth/2 - bumpLength - trenchBlockLength))
-        bottomRight = map.inch_pos_to_screen(redHubPos + QPointF(redHubWidth/2, -redHubWidth/2 - bumpLength))
+        bottomRight = map.inch_pos_to_screen(redHubPos + QPointF(redHubWidth/2, -redHubWidth/2 - bumpLength+1))
+
+        self.rects.append(QRectF(topLeft, bottomRight))        
+trenchLength = 53
+trenchWidth = 4
+class Trench(FieldObject):
+    def __init__(self,map):
+        self.map = map
+
+        self.rects = []
+        topLeft = map.inch_pos_to_screen(redHubPos + QPointF(-trenchWidth/2, redHubWidth/2 + bumpLength + trenchBlockLength + trenchLength))
+        bottomRight = map.inch_pos_to_screen(redHubPos + QPointF(trenchWidth/2, redHubWidth/2 + bumpLength + trenchBlockLength))
+
+        self.rects.append(QRectF(topLeft, bottomRight))
+
+        topLeft = map.inch_pos_to_screen(redHubPos + QPointF(-trenchWidth/2, -redHubWidth/2 - bumpLength - trenchBlockLength - trenchLength))
+        bottomRight = map.inch_pos_to_screen(redHubPos + QPointF(trenchWidth/2, -redHubWidth/2 - bumpLength + trenchBlockLength))
 
         self.rects.append(QRectF(topLeft, bottomRight))        
 
@@ -95,10 +121,13 @@ class RebuiltMap(QGraphicsObject):
         self.heightInches = 317.69
 
         self.factor = inchesAsMeters(self.widthInches) / self.pxWidth
+        self.box = self.inch_pos_to_screen(QPointF(self.widthInches, self.heightInches))
 
         self.hub = Hub(self)
         self.bump = Bumps(self)
-        self.trench = Trenches(self)
+        self.trencherson = TrencherSon(self)
+        self.trench = Trench(self)
+        self.bumperson = Bumperson(self)
 
             
     def getFieldImagePath(self) -> str:
@@ -128,21 +157,27 @@ class RebuiltMap(QGraphicsObject):
         painter.drawRect(QRectF(QPointF(0,botRight.y()/2 - 3), QPointF(botRight.x(), botRight.y()/2 + 3)))
 
 
-
         Styles.redStyle.set_painter(painter)
         self.bump.drawRed(painter, option)
+        self.trench.drawRed(painter, option)
         Styles.darkRedStyle.set_painter(painter)
         self.hub.drawRed(painter, option)
-        self.trench.drawRed(painter, option)
+        self.trencherson.drawRed(painter, option)
+        Styles.darkRedOutline.set_painter(painter)
+        self.bumperson.drawRed(painter,option)
+
 
         
         
 
         Styles.blueStyle.set_painter(painter)
         self.bump.drawBlue(painter, option)
+        self.trench.drawBlue(painter, option)
         Styles.darkBlueStyle.set_painter(painter)
         self.hub.drawBlue(painter, option)
-        self.trench.drawBlue(painter, option)
+        self.trencherson.drawBlue(painter, option)
+        Styles.darkBlueOutlineStyle.set_painter(painter)
+        self.bumperson.drawBlue(painter,option)
 
         
 

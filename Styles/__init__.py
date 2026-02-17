@@ -33,10 +33,14 @@ veryDarkGray = QColor(28, 28, 28)
 black = QColor(0,0,0)
 
 poseStyle = Style(QPen(darkGray, 3, cap = Qt.PenCapStyle.SquareCap))
+
+darkRedOutline = Style(Qt.PenStyle.NoPen, QBrush(QColor(50,0,25)))
 darkRedStyle = Style(Qt.PenStyle.NoPen, QBrush(QColor(200,0,0)))
 redStyle = Style(Qt.PenStyle.NoPen, QBrush(QColor(255,0,0)))
-darkBlueStyle = Style(QPen(black, 3, cap = Qt.PenCapStyle.SquareCap), QBrush(QColor(0,0,200)))
-blueStyle = Style(QPen(black, 3, cap = Qt.PenCapStyle.SquareCap), QBrush(QColor(0,0,255)))
+
+darkBlueOutlineStyle = Style(Qt.PenStyle.NoPen, QBrush(QColor(25,0,50)))
+darkBlueStyle = Style(Qt.PenStyle.NoPen, QBrush(QColor(0,0,200)))
+blueStyle = Style(Qt.PenStyle.NoPen, QBrush(QColor(0,0,255)))
 
 waypointStyle = Style(QPen(darkGray, 3, cap = Qt.PenCapStyle.SquareCap), QBrush(darkerGray))
 curveStyle = Style(QPen(darkishGray, 3, cap = Qt.PenCapStyle.SquareCap), Qt.BrushStyle.NoBrush)

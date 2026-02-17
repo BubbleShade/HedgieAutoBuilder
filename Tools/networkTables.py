@@ -7,8 +7,9 @@ from PyQt6.QtCore import QRegularExpression, QTimer
 from PyQt6.QtGui import QPainter
 import time
 teamNumber = 2898
-
 inst = ntcore.NetworkTableInstance.getDefault()
+
+
 
 class MyPopup(QWidget):
     def __init__(self, parent):
@@ -85,24 +86,32 @@ def doit(parent):
     #if dialog.exec() == QDialog.Accepted:
     #    print(f"User entered: {dialog.get_value()}")
 def connect_to_team(number : int = teamNumber): 
+    inst.startClient4("QuilT")
+    print(f"Attempting to connect to team {number}")
+    print(inst.isConnected())
     inst.setServerTeam(number)
 
     
 
-def push_auto_to_network_tables(json : dict):
-    executionPublisher = inst.getStringArrayTopic("QuillT/Auto/execution").publish()
+def push_auto_to_network_tables(parent, json : dict):
+    table = inst.getTable("QuillT/Auto")
+
+
+    executionPublisher = table.getEntry("execution")
 
     if(not inst.isConnected()):
         print("Error: Not connected to network tables")
+        doit(parent)()
+        return
     execution = []
     for (i,j) in json["execution"]:
         execution.append(i)
         execution.append(j)
-    executionPublisher.set(execution)
-
+    executionPublisher.setStringArray(execution)
+    
     for i in json.keys():
         if(i == "execution"): continue
-        pathPublisher = inst.getDoubleArrayTopic(f"QuillT/Auto/execution/{i}").publish()
+        pathPublisher = table.getEntry(f"execution/{i}")
         path = []
         for waypoint in json[i]:
             for ctrl in ["prevControl", "nextControl"]:
@@ -120,8 +129,9 @@ def push_auto_to_network_tables(json : dict):
             path.append(anchor["y"])
             if(anchor["heading"] == None): path.append(-1000)
             else: path.append(anchor["heading"])
-        print("Published: ", path)
-        pathPublisher.set(value = path)
+        pathPublisher.setDoubleArray(value = path)
+    print("Published: ", path)
+
         
         
 
