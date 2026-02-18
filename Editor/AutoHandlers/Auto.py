@@ -59,10 +59,8 @@ class Auto():
     def fromJsonFile(scene, json : dict, fieldMap : FieldMap):
         execution = []
         for step in json["execution"]:
-            print(step[0])
             if(step[0] == "Path"):
                 path = Path.fromJsonFile(json[step[1]], fieldMap)
-                print(path)
 
                 execution.append(path)
                 continue

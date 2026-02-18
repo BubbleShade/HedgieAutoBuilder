@@ -1,4 +1,4 @@
-__all__ = ["Arrow", "Line", "BezierCurve","clamp","magnitude","vectorAngle","angleBetween","rotateVectorByAngle"]
+__all__ = ["Arrow", "Line", "BezierCurve","clamp","magnitude","vectorAngle","angleBetween","rotateVectorByAngle","SuccessDialog"]
 __name__ = "Tools"
 
 from PyQt6.QtCore import QPointF
@@ -7,6 +7,8 @@ from Tools.arrow import Arrow, ArrowDrawer
 from Tools.line import Line
 from Tools.bezierCurve import BezierCurve
 import Tools.networkTables as networkTables
+from Tools.SharedStuff.successDialog import SuccessDialog
+import Tools.Files
 
 def clamp(value, min_value, max_value):
     return min(max(value, min_value), max_value)

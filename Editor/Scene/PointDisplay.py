@@ -62,7 +62,6 @@ class PointDisplay(DraggableGraphicsItem):
         self.scene.removeItem(self)
         self.setParentItem(None)
         self.hide()
-        print("kerpow")
 
     def undoDelete(self):
         self.scene.addItem(self)

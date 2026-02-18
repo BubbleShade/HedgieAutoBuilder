@@ -90,13 +90,15 @@ class AutoBuilderScene(QGraphicsScene):
 
         self.context_menu = QMenu()
         self.current_file = ""
+        self.defaultDirectory = ""
     def reset_camera(self):
         self.camera.setZoom(1)
         self.camera.setPos(-240,-150)
         
 
     def save_as(self):
-        folderDialog = QFileDialog()
+        if(self.defaultDirectory != ""): folderDialog = QFileDialog(directory=self.defaultDirectory)
+        else: folderDialog = QFileDialog()
         fileName = folderDialog.getSaveFileName(caption="Save As",filter="*.json")
         if(fileName[0] == ""): return
         with open(fileName[0], "w") as f:
@@ -112,13 +114,18 @@ class AutoBuilderScene(QGraphicsScene):
         self.auto.addToScene(self)
         self.auto.addToSideBar(self.sideBar)
         self.update()
+    def setDefaultDirectory(self,directory =""):
+        self.defaultDirectory = directory
+    def setCurrentFile(self, file = ""):
+        self.current_file = file
     def changeAutoFromFile(self, fileName : str):
         with open(fileName, "r") as f:
             auto = Auto.fromJsonFile(self, json.load(f),self.fieldMap)
             self.changeAutoTo(auto)        
         self.current_file = fileName
     def open(self):
-        folderDialog = QFileDialog()
+        if(self.defaultDirectory != ""): folderDialog = QFileDialog(directory=self.defaultDirectory)
+        else: folderDialog = QFileDialog()
         fileName = folderDialog.getOpenFileName(caption="Open File",filter="*.json")
         if(fileName[0] == ""): return
         self.changeAutoFromFile(fileName[0])

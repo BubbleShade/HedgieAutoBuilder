@@ -30,7 +30,6 @@ class Camera(QGraphicsItem):
         self.zoomLevel = 1
 
     def setCenterPos(self, pos):
-        print(self.scene().sceneRect().width())
         #print(f"location: ${QPointF(self.scene().width(), self.scene().height())/2}")
         self.setPos(pos - QPointF(self.scene().width(), self.scene().height())/2)
     def paint(self, painter, option, widget = ...): pass
@@ -67,11 +66,11 @@ class AutoViewer(QGraphicsScene):
     def __init__(self, size : QRectF = QRectF(0,0,200,200), fieldMap : RebuiltMap = RebuiltMap()):
         super().__init__(size)
         self.camera = Camera()
-        self.camera.setZoom(0.4)
+        self.camera.setZoom(0.3)
         self.addItem(self.camera)
         self.addItem = self.addItemToCamera
 
-        self.camera.setPos(0,0)
+        self.camera.setPos(-60,0)
         
         # Add the items to the scene. Items are stacked in the order they are added.
         self.auto : Auto = Auto(self,[])

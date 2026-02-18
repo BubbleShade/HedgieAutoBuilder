@@ -1,7 +1,7 @@
 import sys, os
 
 from PyQt6.QtCore import Qt, QPoint
-from PyQt6.QtGui import QBrush, QPainter, QPen
+from PyQt6.QtGui import QBrush, QPainter, QPen, QIcon, QCursor
 from PyQt6.QtWidgets import (
     QApplication,
     QGraphicsEllipseItem,
@@ -16,7 +16,9 @@ from PyQt6.QtWidgets import (
     QWidget,
     QMenu,
     QGridLayout,
-    QLabel
+    QLabel,
+    QFrame,
+    QToolButton
 )
 #from . import PoseDisplay
 import Styles, Tools
@@ -25,15 +27,28 @@ from Window import CustomTitleBar, CustomWindow
 from . import AutoBox
 from Editor import Editor
 
-class Home(QWidget):
+
+class Home(QFrame):
+    def newAuto(self):
+        self.editor.scene.changeAutoTo()
     def __init__(self, parent : CustomWindow, editor : Editor):
-        print("HOMME")
         super(Home, self).__init__(parent)
         Container = QVBoxLayout(self)
-        Container.addWidget(QLabel("Autos"))
+        TopBar = QHBoxLayout(self)
+        TopBar.addWidget(QLabel("Autos"))
+        self.addButton = QPushButton("+")
+        self.addButton.setFixedSize(44,44)
+        self.addButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.addButton.setToolTip("Create a new auto...")
+        self.setStyleSheet(Styles.homeStyle)
+        TopBar.addWidget(self.addButton)
+
+        Container.addLayout(TopBar)
+
         self.editor = editor
 
         self.Autos = QGridLayout(self)
+        self.Autos.setAlignment(Qt.AlignmentFlag.AlignTop)
         Container.addLayout(self.Autos)
         
 
@@ -65,15 +80,11 @@ class Home(QWidget):
         with os.scandir("D:\\Programming\\HedgieAutoBuilder\\New folder\\") as entries:
             for entry in entries:
                 if entry.is_file():
-                    print(entry.path)
                     if(entry.path.endswith(".json")):
-                        self.Autos.addLayout(AutoBox(self, entry.path), int(i/5), i%5)
+                        self.Autos.addWidget(AutoBox(self, entry.path), int(i/5), i%5)
                         i+= 1
-                        print(entry.path) # entry.path gives the full path to the file
 
 
-        self.Autos.addLayout(AutoBox(self), 0,0)
-        self.Autos.addLayout(AutoBox(self, "D:\\Programming\\HedgieAutoBuilder\\New folder\\gerbabble.json"), 0,1)
         
     def show(self):
         super().show()

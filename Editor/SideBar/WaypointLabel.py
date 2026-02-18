@@ -1,7 +1,7 @@
 import sys
 
 from PyQt6.QtCore import Qt, QMimeData, pyqtSignal, QRegularExpression, QPointF
-from PyQt6.QtGui import QBrush, QPainter, QPen, QContextMenuEvent, QDrag, QPixmap, QRegularExpressionValidator
+from PyQt6.QtGui import QBrush, QPainter, QPen, QContextMenuEvent, QDrag, QPixmap, QRegularExpressionValidator, QCursor
 from PyQt6.QtWidgets import (
     QApplication,
     QGraphicsEllipseItem,
@@ -17,7 +17,8 @@ from PyQt6.QtWidgets import (
     QLabel,
     QMenu,
     QLineEdit,
-    QFrame
+    QFrame,
+    
 )
 import Styles, Tools
 from .. import FieldMap
@@ -26,6 +27,7 @@ class WaypointLabel(QFrame):
     def __init__(self, name : str, waypointHandler = None, parentLayout : QVBoxLayout = None):
         super().__init__()
         self.handler = waypointHandler
+        self.setCursor(QCursor(Qt.CursorShape.ClosedHandCursor))
 
         self.label = QLabel(name)
 
@@ -49,10 +51,6 @@ class WaypointLabel(QFrame):
         #self.xInput.setMaximumWidth(20)
         #self.yInput.setMaximumWidth(20)
 
-
-
-
-
         self.lay = QHBoxLayout(self)
         self.lay.addWidget(self.label)
         self.lay.addWidget(self.xInput)
@@ -74,10 +72,6 @@ class WaypointLabel(QFrame):
     def updateY(self, newText: str):
         if(self.handler.poseDisplay != None):
             self.handler.poseDisplay.setX(Tools.parseFloatString(newText))
-        
-
-
-
 
     def updatePosition(self):
         x, y = self.handler.x(), self.handler.y()
@@ -89,9 +83,6 @@ class WaypointLabel(QFrame):
         if(not self.xInput.hasFocus() and not self.yInput.hasFocus()):
             self.xInput.setText(str(round(x,3)))
             self.yInput.setText(str(round(y,3)))
-
-        
-
 
     def swapEvent(self, oldIndex, newIndex):
         if(self.waypointHandler == None): return

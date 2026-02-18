@@ -1,0 +1,17 @@
+QLabel {
+    background-color: transparent;
+    color: #FFFFFF;
+    border-style: outset;
+    font: bold 35px;
+    min-width: 5em;
+    padding: 1px;
+}
+QPushButton {
+    background-color: rgb(193, 193, 239);
+    color: rgb(45, 45, 65);
+    font: bold 30px;
+    border-radius: 22px;
+}
+QPushButton:hover {
+    background-color: rgb(185, 185, 230);
+}

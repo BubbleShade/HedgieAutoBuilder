@@ -12,6 +12,10 @@ with open("Styles/ToolbarButtons.qss","r") as file:
     
 with open("Styles/Editor/waypointLabel.qss","r") as file:
     waypointLabelStyle = file.read()
+with open("Styles/Home/autoBox.qss","r") as file:
+    autoBoxStyle = file.read()
+with open("Styles/Home/home.qss","r") as file:
+    homeStyle = file.read()
 
 class Style():
     def __init__(self, pen : QPen, brush : QBrush = None):
@@ -25,6 +29,7 @@ class Style():
 
 toothpasteWhite = QColor(221, 226, 235)
 toothPasteGray = QColor(130, 132, 135)
+gray = QColor(107, 107, 107)
 darkishGray = QColor(73, 74, 74)
 darkerGray = QColor(56, 56, 56)
 
@@ -32,7 +37,7 @@ darkGray = QColor(38, 38, 38)
 veryDarkGray = QColor(28, 28, 28)
 black = QColor(0,0,0)
 
-poseStyle = Style(QPen(darkGray, 3, cap = Qt.PenCapStyle.SquareCap))
+poseStyle = Style(QPen(darkishGray, 3, cap = Qt.PenCapStyle.SquareCap))
 
 darkRedOutline = Style(Qt.PenStyle.NoPen, QBrush(QColor(50,0,25)))
 darkRedStyle = Style(Qt.PenStyle.NoPen, QBrush(QColor(200,0,0)))
@@ -42,9 +47,9 @@ darkBlueOutlineStyle = Style(Qt.PenStyle.NoPen, QBrush(QColor(25,0,50)))
 darkBlueStyle = Style(Qt.PenStyle.NoPen, QBrush(QColor(0,0,200)))
 blueStyle = Style(Qt.PenStyle.NoPen, QBrush(QColor(0,0,255)))
 
-waypointStyle = Style(QPen(darkGray, 3, cap = Qt.PenCapStyle.SquareCap), QBrush(darkerGray))
-curveStyle = Style(QPen(darkishGray, 3, cap = Qt.PenCapStyle.SquareCap), Qt.BrushStyle.NoBrush)
-bezierHandleStyle = Style(QPen(darkerGray, 3), QBrush(darkishGray))
+waypointStyle = Style(QPen(darkishGray, 3, cap = Qt.PenCapStyle.SquareCap), QBrush(gray))
+curveStyle = Style(QPen(toothPasteGray, 3, cap = Qt.PenCapStyle.SquareCap), Qt.BrushStyle.NoBrush)
+bezierHandleStyle = Style(QPen(gray, 3), QBrush(toothpasteWhite))
 
 
 

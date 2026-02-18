@@ -91,7 +91,6 @@ class Path():
             waypoint.poseDisplay.handle.handle2.setCenterPos(bestHandle2Pos *20)
 
             dist = PathDrawer.getLengthOfWaypoints(testWaypoints).length()
-            print(dist)
             if(bestIndex == None):
                 bestIndex = index
                 bestDist = dist

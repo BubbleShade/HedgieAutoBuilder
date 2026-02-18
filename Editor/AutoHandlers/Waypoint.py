@@ -110,7 +110,6 @@ class Waypoint():
     def fromJsonFile(json : dict, fieldMap : FieldMap):
         pos = fieldMap.field_pos_to_screen(Tools.pointFromJson(json["anchor"]))
         waypoint = Waypoint(x = pos.x(), y=  pos.y(), heading=json["anchor"]["heading"])
-        print(waypoint.pos())
 
         if(json["prevControl"] != None):
             waypoint.ctrlPoint2 = fieldMap.field_pos_to_screen(Tools.pointFromJson(json["prevControl"]))

@@ -52,7 +52,6 @@ class PathDrawer(QGraphicsPathItem):
         self.readyPaint()
         
         #if(self.parentItem() != None):
-        #    print("helos")
         #    self
         #    self.scene().update()
         #    self.paint(QPainter(), 0)

@@ -34,8 +34,6 @@ class FieldObject():
             painter.drawRect(self.rotateRect(self.map, i))
     @staticmethod
     def rotate(map, point: QPointF):
-        print(map.boundingRect().width())
-
         return map.box - point
     @staticmethod
     def rotateRect(map, rect: QRectF):

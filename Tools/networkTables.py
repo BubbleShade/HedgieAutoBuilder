@@ -6,6 +6,7 @@ from PyQt6.QtCore import QRegularExpression, QTimer
 
 from PyQt6.QtGui import QPainter
 import time
+from Tools.SharedStuff.successDialog import SuccessDialog
 teamNumber = 2898
 inst = ntcore.NetworkTableInstance.getDefault()
 
@@ -19,9 +20,10 @@ class MyPopup(QWidget):
         dc = QPainter(self)
         dc.drawLine(0, 0, 100, 100)
         dc.drawLine(100, 0, 0, 100)
-class CustomDialog(QDialog):
+
+class ConnectToNetworkTablesDialog(QDialog):
     def __init__(self, parent=None):
-        super(CustomDialog, self).__init__(parent)
+        super(ConnectToNetworkTablesDialog, self).__init__(parent)
         self.setWindowTitle("Connect to network tables...")
         
         # Create widgets
@@ -80,15 +82,12 @@ class CustomDialog(QDialog):
         return self.name_input.text()
 def doit(parent):
     def thingy():
-        dialog = CustomDialog(parent)
+        dialog = ConnectToNetworkTablesDialog(parent)
         dialog.show()
     return thingy
     #if dialog.exec() == QDialog.Accepted:
-    #    print(f"User entered: {dialog.get_value()}")
 def connect_to_team(number : int = teamNumber): 
     inst.startClient4("QuilT")
-    print(f"Attempting to connect to team {number}")
-    print(inst.isConnected())
     inst.setServerTeam(number)
 
     
@@ -130,6 +129,9 @@ def push_auto_to_network_tables(parent, json : dict):
             if(anchor["heading"] == None): path.append(-1000)
             else: path.append(anchor["heading"])
         pathPublisher.setDoubleArray(value = path)
+        dialog = SuccessDialog("Successfully published auto to NetworkTables!", "Publish...", parent)
+        dialog.show()
+    
     print("Published: ", path)
 
         

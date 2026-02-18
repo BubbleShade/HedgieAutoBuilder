@@ -104,7 +104,6 @@ class BezierHandle(QGraphicsItem):
         #self.arrow.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable, False)
     def hide(self):
         super().hide()
-        print("HIde")
         self.handle1.hide()
         self.handle2.hide()
     
@@ -118,7 +117,6 @@ class BezierHandle(QGraphicsItem):
         
     def wheelEvent(self, QWheelEvent):
         if(not self.isSelected()): return
-        #print(QWheelEvent.delta() * 1)
         #self.setRotation(self.rotation() + ((1/8)*QWheelEvent.delta()))
     def mousePressEvent(self, e):
         super().mousePressEvent(e)
