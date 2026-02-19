@@ -25,6 +25,9 @@ class Path():
         self.parentAuto = None
         self.pathDrawer = PathDrawer(self)
         self.name = "Path1"
+    
+    def getDrawerWaypoints():
+        return self.
 
     def scene(self):
         if(self.parentAuto != None): return self.parentAuto.scene

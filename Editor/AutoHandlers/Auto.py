@@ -19,13 +19,24 @@ from PyQt6.QtWidgets import (
     QMenu,
 )
 from . import Path
+from . import InitialPose
 from .. import FieldMap
 class Auto():
-    def __init__(self, scene, execution = []):
+    def __init__(self, scene, initialPose : InitialPose, execution : list = []):
+        self.initialPose = initialPose
         self.execution = execution
         for i in execution:
             i.parentAuto = self
         self.scene = scene
+        
+    def getLastPose(self, path : Path):
+        index = self.execution.index(path)
+        for i in range(index + 1):
+            if(index - i - 1 < 0):
+                return self.initialPose
+            if(type(self.execution[index - i - 1] == Path)):
+                return self.execution[index - i - 1].waypoints[-1]
+
     def addToScene(self, scene):
         for i in self.execution:
             if(i.addToScene !=  None):

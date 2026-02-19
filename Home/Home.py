@@ -30,6 +30,7 @@ from Editor import Editor
 
 class Home(QFrame):
     def newAuto(self):
+        self.auto =
         self.editor.scene.changeAutoTo()
     def __init__(self, parent : CustomWindow, editor : Editor):
         super(Home, self).__init__(parent)
