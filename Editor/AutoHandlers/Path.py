@@ -10,24 +10,24 @@ def handlePoseComposer(pose : PointDisplay, handle):
 
 
 class Path():
-    def __init__(self, waypoints : list[Waypoint] = []):
-        for i in range(2-len(waypoints)):
-            waypoints.append(Waypoint(self, rotation=0))
-        for waypoint in [waypoints[0], waypoints[-1]]:
-            if(waypoint.startHeading == None): waypoint.setHeading(0)
+    def __init__(self, *waypoints : Waypoint):
  
-        self.waypoints : list[Waypoint] = waypoints
+        self.waypoints : list[Waypoint] = list(waypoints)
+
+        if(self.waypoints == []):
+            self.waypoints.append(Waypoint(self, rotation=0))
+        self.waypoints[-1].setHeading(0)
+
         for i in waypoints:
             i.setParent(self)
         self.sideBarItem = None
         self.curves = []
         self.poseLabels = {}
         self.parentAuto = None
-        self.pathDrawer = PathDrawer(self)
         self.name = "Path1"
     
-    def getDrawerWaypoints():
-        return self.
+    def getDrawerWaypoints(self):
+        return self.parentAuto
 
     def scene(self):
         if(self.parentAuto != None): return self.parentAuto.scene
@@ -35,7 +35,7 @@ class Path():
 
     def updateScene(self,scene : QGraphicsScene):
         if(scene == None): return
-        self.pathDrawer.updatePath()
+        self.parentAuto.updateScene(scene)
 
     def remove(self, waypoint : Waypoint):
         self.waypoints.remove(waypoint)
@@ -58,7 +58,7 @@ class Path():
         
             
         self.waypoints[i1], self.waypoints[i2] = self.waypoints[i2], self.waypoints[i1]
-        self.pathDrawer.updatePath()
+        self.parentAuto.updateScene()
 
 
 
@@ -115,8 +115,6 @@ class Path():
     def addToScene(self, scene : QGraphicsScene):
         for i in self.waypoints:
             i.addDisplay(scene)
-        self.pathDrawer.setParentItem(scene.camera)
-        self.pathDrawer.updatePath()
     def addToStaticScene(self, scene : QGraphicsScene):
         for i in self.waypoints:
             i.addDisplay(scene, True)
@@ -143,7 +141,7 @@ class Path():
             self.waypoints[i].delete()
         if(self.sideBarItem != None):
             self.sideBarItem.hide()
-        self.pathDrawer.delete()
+            self.sideBarItem.deleteLater()
 
     def addToJson(self, json : dict, fieldMap : FieldMap):
         json["execution"].append(("Path", self.name))

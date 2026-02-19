@@ -30,9 +30,12 @@ class PathDrawer(QGraphicsPathItem):
         self.pathParent = path
         self.setPen(Styles.curveStyle.pen)
         self.curves = []
-    def updatePath(self):
+    def updatePath(self, data):
+        if(data == []): return
+
         self.curves = []
-        data = self.pathParent.waypoints
+
+        self._sourcePoint = data[0].pos
 
         for i in data:
             i.poseDisplay.handle.hideHandles()
@@ -56,11 +59,8 @@ class PathDrawer(QGraphicsPathItem):
         #    self.scene().update()
         #    self.paint(QPainter(), 0)
 
-    def _sourcePoint(self):
-        return self.pathParent.waypoints[0].pos()
+    def _sourcePoint(self): return None
 
-    def setDestination(self, point: QPointF):
-        self._destinationPoint = point
 
     def bezierPath(self):
         path = QPainterPath()

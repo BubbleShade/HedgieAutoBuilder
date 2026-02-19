@@ -31,8 +31,8 @@ class Waypoint():
         if(self.poseDisplay != None): return self.poseDisplay.x()
         return self.startX
     def y(self) -> float:
-        if(self.poseDisplay != None): return self.poseDisplay.x()
-        return self.startX
+        if(self.poseDisplay != None): return self.poseDisplay.y()
+        return self.startY
     def pos(self) -> QPointF:
         if(self.poseDisplay != None): 
             return self.poseDisplay.pos()

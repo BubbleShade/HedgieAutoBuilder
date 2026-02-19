@@ -61,8 +61,10 @@ class WaypointLabel(QFrame):
         self.waypointHandler.poseDisplay.movedSignal.connect(self.updatePosition)
 
         self.xInput.textChanged.connect(self.updateX)
+        self.yInput.textChanged.connect(self.updateY)
 
     def updateX(self, newText: str):
+        if(not self.xInput.hasFocus()): return
         if(self.handler.poseDisplay != None):
             fieldMap : FieldMap = self.handler.poseDisplay.scene.fieldMap
             x= Tools.parseFloatString(newText)
@@ -70,8 +72,12 @@ class WaypointLabel(QFrame):
             self.handler.poseDisplay.setX(fieldMap.field_pos_to_screen(QPointF(x,0)).x())
 
     def updateY(self, newText: str):
+        if(not self.yInput.hasFocus()): return
         if(self.handler.poseDisplay != None):
-            self.handler.poseDisplay.setX(Tools.parseFloatString(newText))
+            fieldMap : FieldMap = self.handler.poseDisplay.scene.fieldMap
+            y = Tools.parseFloatString(newText)
+            
+            self.handler.poseDisplay.setY(fieldMap.field_pos_to_screen(QPointF(0,y)).y())
 
     def updatePosition(self):
         x, y = self.handler.x(), self.handler.y()

@@ -25,13 +25,19 @@ import Styles, Tools
 
 from Window import CustomTitleBar, CustomWindow
 from . import AutoBox
-from Editor import Editor
+from Editor import Editor, Auto, InitialPose, Path, Waypoint
 
 
 class Home(QFrame):
+    def switchViewToEditor(self):
+        self.editor.back = self
+        self.parent().setFocus(self.editor)
     def newAuto(self):
-        self.auto =
-        self.editor.scene.changeAutoTo()
+        auto = Auto(initialPose=InitialPose(100,200), execution=[Path(Waypoint(x= 200, y=300))], scene=self.editor.scene)
+        self.editor.scene.changeAutoTo(auto)
+        self.switchViewToEditor()
+
+        
     def __init__(self, parent : CustomWindow, editor : Editor):
         super(Home, self).__init__(parent)
         Container = QVBoxLayout(self)
@@ -41,6 +47,7 @@ class Home(QFrame):
         self.addButton.setFixedSize(44,44)
         self.addButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.addButton.setToolTip("Create a new auto...")
+        self.addButton.pressed.connect(self.newAuto)
         self.setStyleSheet(Styles.homeStyle)
         TopBar.addWidget(self.addButton)
 
@@ -78,7 +85,7 @@ class Home(QFrame):
     def updateLayouts(self):
         Tools.clear_layout(self.Autos)
         i = 0
-        with os.scandir("D:\\Programming\\HedgieAutoBuilder\\New folder\\") as entries:
+        with os.scandir("D:\\Programing stuff\\HedgeAutos\\New folder") as entries:
             for entry in entries:
                 if entry.is_file():
                     if(entry.path.endswith(".json")):

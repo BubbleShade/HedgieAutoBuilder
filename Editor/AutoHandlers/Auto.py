@@ -21,13 +21,30 @@ from PyQt6.QtWidgets import (
 from . import Path
 from . import InitialPose
 from .. import FieldMap
+from .. import PathDrawer
 class Auto():
     def __init__(self, scene, initialPose : InitialPose, execution : list = []):
+        print(initialPose)
+        print(execution)
         self.initialPose = initialPose
         self.execution = execution
         for i in execution:
             i.parentAuto = self
         self.scene = scene
+        self.pathDrawer = PathDrawer(self)
+
+    def updateScene(self,scene : QGraphicsScene = None):
+        self.pathDrawer.updatePath(self.pathDrawerWaypoints())
+        if(scene == None): return
+
+    def pathDrawerWaypoints(self):
+        waypoints = [self.initialPose]
+        for i in self.execution:
+            if(type(i) == Path):
+                for waypoint in i.waypoints:
+                    waypoints.append(waypoint)
+        return waypoints
+
         
     def getLastPose(self, path : Path):
         index = self.execution.index(path)
@@ -38,22 +55,30 @@ class Auto():
                 return self.execution[index - i - 1].waypoints[-1]
 
     def addToScene(self, scene):
+        self.initialPose.addDisplay(scene)
         for i in self.execution:
             if(i.addToScene !=  None):
                 i.addToScene(scene)
+        self.pathDrawer.setParentItem(scene.camera)
+        self.updateScene(scene)
     def addToStaticScene(self, scene):
         for i in self.execution:
             if(i.addToStaticScene !=  None):
                 i.addToStaticScene(scene)
+
     def addToSideBar(self, sideBar):
+        self.initialPose.addToSideBar(sideBar)
         for i in self.execution:
             i.addToSideBar(sideBar)
     def paths(self) -> list[Path]:
         return list(filter(lambda a: type(a) == Path, self.execution))
     
     def delete(self):
+        self.initialPose.delete()
         for i in self.execution:
             i.delete()
+        self.pathDrawer.delete()
+
         
     def getClosestPath(self, position) -> Path:
         paths= self.paths()
