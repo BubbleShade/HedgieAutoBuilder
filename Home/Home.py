@@ -85,7 +85,7 @@ class Home(QFrame):
     def updateLayouts(self):
         Tools.clear_layout(self.Autos)
         i = 0
-        with os.scandir("D:\\Programing stuff\\HedgeAutos\\New folder") as entries:
+        with os.scandir("D:\Programming\HedgieAutoBuilder\Autos") as entries:
             for entry in entries:
                 if entry.is_file():
                     if(entry.path.endswith(".json")):

@@ -1,0 +1,20 @@
+QFrame {
+    background-color: rgb(30, 30, 31);
+    color: #FFFFFF;
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: #702300;
+    font: bold 14px;
+    min-width: 5em;
+}
+QLineEdit {
+    color: #FFFFFF;
+    border-style: none;
+    font: bold 14px;
+}
+QLabel {
+    color: #FFFFFF;
+    border-style: none;
+    font: bold 18px;
+}

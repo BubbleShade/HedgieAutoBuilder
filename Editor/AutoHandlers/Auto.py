@@ -1,4 +1,4 @@
-from .. import PointDisplay, SideBar, PathLabel, Action
+from .. import PointDisplay, SideBar, PathSidebarItem, Action
 import Styles
 from Tools import BezierCurve
 from PyQt6.QtCore import Qt, QMimeData, pyqtSignal
@@ -18,16 +18,16 @@ from PyQt6.QtWidgets import (
     QLabel,
     QMenu,
 )
-from . import Path
+from . import Path, NamedCommand, CommandGroup, CommandGroupType
 from . import InitialPose
 from .. import FieldMap
 from .. import PathDrawer
 class Auto():
-    def __init__(self, scene, initialPose : InitialPose, execution : list = []):
+    def __init__(self, scene, initialPose : InitialPose, *execution):
         print(initialPose)
         print(execution)
         self.initialPose = initialPose
-        self.execution = execution
+        self.execution = list(execution)
         for i in execution:
             i.parentAuto = self
         self.scene = scene
@@ -61,10 +61,14 @@ class Auto():
                 i.addToScene(scene)
         self.pathDrawer.setParentItem(scene.camera)
         self.updateScene(scene)
+
     def addToStaticScene(self, scene):
+        self.initialPose.addDisplay(scene, True)
         for i in self.execution:
             if(i.addToStaticScene !=  None):
                 i.addToStaticScene(scene)
+        self.pathDrawer.setParentItem(scene.camera)
+        self.updateScene(scene)
 
     def addToSideBar(self, sideBar):
         self.initialPose.addToSideBar(sideBar)
@@ -74,7 +78,7 @@ class Auto():
         return list(filter(lambda a: type(a) == Path, self.execution))
     
     def delete(self):
-        self.initialPose.delete()
+        if(type(self.initialPose) == InitialPose): self.initialPose.delete()
         for i in self.execution:
             i.delete()
         self.pathDrawer.delete()
@@ -84,21 +88,68 @@ class Auto():
         paths= self.paths()
         if(len(paths) == 0): return None
         return min(paths, key = lambda a: a.distFromPoint(position))
+    def iterateThroughExecution(self, json, pathCount, fieldMap):
+        string = ""
+        for i in self.execution:
+            if(string != ""): string += ","
+            if(type(i) == Path):
+                string += "p" + str(pathCount)
+                json["p" + str(pathCount)] = i.getJson(fieldMap)
+                pathCount += 1
+            if(type(i) == NamedCommand):
+                string += "n(" + i.name + ")"
+            if(type(i) == CommandGroup):
+                string += i.type[0] + "("
+                pathCount, guy = self.iterateThroughExecution(json, pathCount, fieldMap)
+                string += guy + ")"
+        return pathCount, string
     
     def getJsonFile(self, fieldMap):
-        data = {"execution":[]}
-
-        for i in self.execution:
-            i.addToJson(data, fieldMap)
+        data = {"initialPose": self.initialPose.getJson(fieldMap)}
+        pathCount, execution = self.iterateThroughExecution(data, 0, fieldMap)
+        data["execution"] = execution
+        print(data)
         return data
     @staticmethod
-    def fromJsonFile(scene, json : dict, fieldMap : FieldMap):
+    def iterateThroughExecutionJson(i, executionString : str, json, fieldMap):
         execution = []
-        for step in json["execution"]:
-            if(step[0] == "Path"):
-                path = Path.fromJsonFile(json[step[1]], fieldMap)
-
-                execution.append(path)
+        stringLength = len(executionString)
+        while(i < stringLength):
+            if(executionString[i] == ","):
+                i += 1
                 continue
-                
-        return Auto(scene, execution)
+            if(executionString[i] == ")"):
+                i += 1
+                break
+            if(json["execution"][i] == "p"):
+                num = ""
+                i += 1
+                while(i < stringLength and executionString[i].isnumeric()):
+                    num += executionString[i]
+                    i += 1
+                execution.append(Path.fromJsonFile(json["p" + num], fieldMap))
+                continue
+            if(json["execution"][i] == "n"):
+                autoName = ""
+                i += 2
+                while(executionString[i] != "]" and i < stringLength):
+                    autoName += executionString[i]
+                    i += 1
+                execution.append(NamedCommand(autoName))
+                continue
+            if(json["execution"][i] in ("S", "P", "R", "D")):
+                commandType = CommandGroupType.getFromLetter(json["execution"][i])
+                i, newCommandGroupExecution = Auto.iterateThroughExecutionJson(i+1, executionString, json, fieldMap)
+                execution.append(CommandGroup(CommandGroupType.Parallel, newCommandGroupExecution))
+                continue
+            i += 1
+        return i, execution
+
+
+    @staticmethod
+    def fromJsonFile(scene, json : dict, fieldMap : FieldMap):
+        i, execution = Auto.iterateThroughExecutionJson(0, json["execution"], json, fieldMap)
+        initialPose = InitialPose.fromJsonFile(json["initialPose"], fieldMap)
+        print(json["initialPose"])
+        print("FromJsonFile")
+        return Auto(scene, initialPose, *execution)

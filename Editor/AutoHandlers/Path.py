@@ -1,4 +1,4 @@
-from .. import PointDisplay, PathLabel, SideBar, PathDrawer
+from .. import PointDisplay, PathSidebarItem, SideBar, PathDrawer
 from . import Waypoint
 import Styles
 import Tools
@@ -118,13 +118,10 @@ class Path():
     def addToStaticScene(self, scene : QGraphicsScene):
         for i in self.waypoints:
             i.addDisplay(scene, True)
-        self.pathDrawer.setParentItem(scene.camera)
-        self.pathDrawer.pen().setWidth(40)
-        self.pathDrawer.updatePath()
 
     def addToSideBar(self, sideBar : SideBar):
-        self.sideBarItem = PathLabel()
-        sideBar.addPathLabel(self.sideBarItem)
+        self.sideBarItem = PathSidebarItem()
+        sideBar.addSideBarLayout(self.sideBarItem)
         for waypoint in self.waypoints:
             poseLabel = sideBar.create_waypoint_label(waypoint)
             self.poseLabels[waypoint] = poseLabel
@@ -143,18 +140,17 @@ class Path():
             self.sideBarItem.hide()
             self.sideBarItem.deleteLater()
 
-    def addToJson(self, json : dict, fieldMap : FieldMap):
-        json["execution"].append(("Path", self.name))
+    def getJson(self, fieldMap : FieldMap):
         waypointJsonList = []
         for waypoint in self.waypoints:
             waypoint.addToJson(waypointJsonList, fieldMap)
-        json[self.name] = waypointJsonList
+        return waypointJsonList
     @staticmethod
     def fromJsonFile(pathList, fieldMap : FieldMap):
         waypoints = []
         for i in pathList:
             waypoints.append(Waypoint.fromJsonFile(i, fieldMap))
-        return Path(waypoints)
+        return Path(*waypoints)
     
 
 

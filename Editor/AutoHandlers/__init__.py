@@ -4,4 +4,6 @@ __name__ = "Editor/AutoHandlers"
 from .Waypoint import Waypoint
 from .Path import Path
 from .initialPose import InitialPose
+from .NamedCommand import NamedCommand
+from .CommandGroup import CommandGroup, CommandGroupType
 from .Auto import Auto

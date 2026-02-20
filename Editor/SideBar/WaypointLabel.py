@@ -23,7 +23,7 @@ from PyQt6.QtWidgets import (
 import Styles, Tools
 from .. import FieldMap
 
-class WaypointLabel(QFrame):
+class WaypointSidebarItem(QFrame):
     def __init__(self, name : str, waypointHandler = None, parentLayout : QVBoxLayout = None):
         super().__init__()
         self.handler = waypointHandler

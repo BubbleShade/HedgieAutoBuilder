@@ -1,0 +1,15 @@
+QFrame {
+    background-color: rgb(20, 20, 21);
+    color: #FFFFFF;
+    border-style: none;
+    border-width: 0px;
+    border-radius: 10px;
+    font: bold 14px;
+    min-width: 5em;
+}
+QLabel {
+    color: #FFFFFF;
+    border-style: none;
+    background-color: transparent;
+    font: bold 14px;
+}

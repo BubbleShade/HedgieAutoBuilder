@@ -12,6 +12,11 @@ with open("Styles/ToolbarButtons.qss","r") as file:
     
 with open("Styles/Editor/waypointLabel.qss","r") as file:
     waypointLabelStyle = file.read()
+with open("Styles/Editor/commandGroup.qss","r") as file:
+    commandGroupStyle = file.read()
+with open("Styles/Editor/namedCommand.qss","r") as file:
+    namedCommandStyle = file.read()
+    
 with open("Styles/Home/autoBox.qss","r") as file:
     autoBoxStyle = file.read()
 with open("Styles/Home/home.qss","r") as file:

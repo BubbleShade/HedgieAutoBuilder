@@ -17,9 +17,9 @@ from PyQt6.QtWidgets import (
     QLabel
 )
 import Styles, Tools
-from . import DragWidget, WaypointLabel
+from . import DragWidget, WaypointSidebarItem
 
-class PathLabel(QHBoxLayout):
+class PathSidebarItem(QHBoxLayout):
     def __init__(self):
         super().__init__()
         self.poseLayout = DragWidget()
@@ -41,5 +41,5 @@ class PathLabel(QHBoxLayout):
     def create_waypoint_label(self, waypoint, name = None):
         if(name == None):
             self.i += 1
-            return WaypointLabel(f"Waypoint {self.i}", waypoint)
-        return WaypointLabel(name, waypoint)
+            return WaypointSidebarItem(f"Waypoint {self.i}", waypoint)
+        return WaypointSidebarItem(name, waypoint)

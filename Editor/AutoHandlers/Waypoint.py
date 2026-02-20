@@ -87,7 +87,7 @@ class Waypoint():
         
         data["anchor"] = [self.x(), self.y]
         return data
-    def addToJson(self, waypointList : list, fieldMap : FieldMap):
+    def getJson(self, fieldMap : FieldMap):
         json = {}
         if(self.poseDisplay == None):
             raise RuntimeError("Attempted to export json file before waypoints indexed")
@@ -105,7 +105,9 @@ class Waypoint():
             json["anchor"]["heading"] = self.poseDisplay.rotation()
         else:
             json["anchor"]["heading"] = None
-        waypointList.append(json)
+        return json
+    def addToJson(self, waypointList : list, fieldMap : FieldMap):
+        waypointList.append(self.getJson(fieldMap))
     @staticmethod
     def fromJsonFile(json : dict, fieldMap : FieldMap):
         pos = fieldMap.field_pos_to_screen(Tools.pointFromJson(json["anchor"]))

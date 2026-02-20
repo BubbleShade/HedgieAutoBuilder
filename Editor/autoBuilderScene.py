@@ -79,7 +79,7 @@ class AutoBuilderScene(QGraphicsScene):
         self.camera.setPos(-240,-150)
         
         # Add the items to the scene. Items are stacked in the order they are added.
-        self.auto : Auto = Auto(self, InitialPose(x=504,y=504), [Path(Waypoint(x=504,y=504), Waypoint(x=125,y=100),Waypoint(x=200,y=200))])
+        self.auto : Auto = Auto(self, InitialPose(x=504,y=504), Path(Waypoint(x=504,y=504), Waypoint(x=125,y=100),Waypoint(x=200,y=200)))
 
         self.fieldMap = RebuiltMap()
         self.addItem(self.fieldMap)

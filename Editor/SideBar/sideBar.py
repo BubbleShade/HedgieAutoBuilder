@@ -16,30 +16,40 @@ from PyQt6.QtWidgets import (
     QWidget,
     QLabel,
     QMenu,
-    QLayout
+    QLayout,
+    QScrollArea
     
 )
 import Styles
-from . import WaypointLabel
+from . import WaypointSidebarItem, CommandGroupSideBarItem, NamedCommandSidebarItem
 
-class SideBar(QWidget):
+class SideBar(QScrollArea):
     def __init__(self, parent = None):
         super().__init__(parent)         
         self.i = 0
         self.lay = QVBoxLayout()
+        self.seqCommandGroup = CommandGroupSideBarItem("Whar")
+        self.coolCommand = NamedCommandSidebarItem("Win the game")
+        self.seqCommandGroup.lay.addWidget(self.coolCommand)
+        self.lay.addWidget(self.seqCommandGroup)
         self.setLayout(self.lay)
         self.setMaximumWidth(400)
         self.scene = None
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
-    def addPathLabel(self, pathLabel):
-        self.lay.addLayout(pathLabel)
-        self.lay.setParent(self)
+    
+    def addSideBarWidget(self, sidebarWidget):
+        self.seqCommandGroup.lay.addWidget(sidebarWidget)
+    def addSideBarLayout(self, sidebarLayout):
+        self.seqCommandGroup.lay.addLayout(sidebarLayout)
+        #self.lay.setParent(self)
 
     def create_waypoint_label(self, waypoint, name = None):
         if(name == None):
             self.i += 1
-            return WaypointLabel(f"Waypoint {self.i}", waypoint)
-        return WaypointLabel(name, waypoint)
+            return WaypointSidebarItem(f"Waypoint {self.i}", waypoint)
+        return WaypointSidebarItem(name, waypoint)
     def mousePressEvent(self, a0):
         a0.accept()
         return super().mousePressEvent(a0)
