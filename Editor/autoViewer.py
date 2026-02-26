@@ -19,7 +19,7 @@ from PyQt6.QtWidgets import (
 )
 import json, os, numpy, math
 import Styles
-from . import PointDisplay, SideBar, Action, Auto, Path, Waypoint, FieldMap
+from . import PointDisplay, SideBar, Action, Auto, Path, Waypoint, FieldMap, CommandGroup
 from Tools import BezierCurve, clamp
 import Tools
 from Fields.Field2D_2026Rebuilt import RebuiltMap
@@ -73,7 +73,7 @@ class AutoViewer(QGraphicsScene):
         self.camera.setPos(-60,0)
         
         # Add the items to the scene. Items are stacked in the order they are added.
-        self.auto : Auto = Auto(self,[])
+        self.auto : Auto = Auto(self)
 
         self.fieldMap = RebuiltMap()
         self.addItem(self.fieldMap)

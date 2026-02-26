@@ -23,7 +23,7 @@ from . import InitialPose
 from .. import FieldMap
 from .. import PathDrawer
 class Auto():
-    def __init__(self, scene, initialPose : InitialPose, commandGroup : CommandGroup):
+    def __init__(self, scene, initialPose : InitialPose = InitialPose(0,0), commandGroup : CommandGroup = CommandGroup(CommandGroupType.Sequential, None)):
         self.initialPose = initialPose
         self.commandGroup = commandGroup
         self.scene = scene
@@ -53,29 +53,27 @@ class Auto():
     def addToScene(self, scene):
         self.initialPose.addDisplay(scene)
         self.commandGroup.addToScene(scene)
+        self.commandGroup.addToScene(scene)
         
         self.pathDrawer.setParentItem(scene.camera)
         self.updateScene(scene)
 
     def addToStaticScene(self, scene):
         self.initialPose.addDisplay(scene, True)
-        for i in self.execution:
-            if(i.addToStaticScene !=  None):
-                i.addToStaticScene(scene)
+        self.commandGroup.addToStaticScene(scene)
         self.pathDrawer.setParentItem(scene.camera)
         self.updateScene(scene)
 
     def addToSideBar(self, sideBar):
         self.initialPose.addToSideBar(sideBar)
-        for i in self.execution:
-            i.addToSideBar(sideBar)
+        self.commandGroup.addToSideBar(sideBar)
+
     def paths(self) -> list[Path]:
         return list(filter(lambda a: type(a) == Path, self.execution))
     
     def delete(self):
         if(type(self.initialPose) == InitialPose): self.initialPose.delete()
-        for i in self.execution:
-            i.delete()
+        self.commandGroup.delete()
         self.pathDrawer.delete()
 
         
@@ -147,4 +145,4 @@ class Auto():
         initialPose = InitialPose.fromJsonFile(json["initialPose"], fieldMap)
         print(json["initialPose"])
         print("FromJsonFile")
-        return Auto(scene, initialPose, *execution)
+        return Auto(scene, initialPose, execution[0])
