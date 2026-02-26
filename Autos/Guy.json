@@ -25,5 +25,5 @@
             }
         }
     ],
-    "execution": "p0,n[Win the Game]"
+    "execution": "S(p0)"
 }

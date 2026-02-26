@@ -107,7 +107,16 @@ class Path():
             testWaypoints[index+1].pos() + waypoint.pos())
         waypoint.poseDisplay.handle.handle1.setCenterPos( bestHandle1Pos * 20 )
         waypoint.poseDisplay.handle.handle2.setCenterPos( bestHandle2Pos * 20 )
-        self.addWaypointAtIndex(waypoint, bestIndex)        
+        self.addWaypointAtIndex(waypoint, bestIndex)     
+    def addPathBelow(self):
+        exec : list =self.parentAuto.execution 
+        index = exec.index(self)
+        newPath = Path([self.waypoints[-1]])
+        newPath.waypoints[-1].startX += 25
+
+        exec.insert(index, newPath)
+
+
 
 
         
@@ -118,14 +127,13 @@ class Path():
     def addToStaticScene(self, scene : QGraphicsScene):
         for i in self.waypoints:
             i.addDisplay(scene, True)
-
-    def addToSideBar(self, sideBar : SideBar):
-        self.sideBarItem = PathSidebarItem()
-        sideBar.addSideBarLayout(self.sideBarItem)
+    def getSidebarItem(self):
+        self.sideBarItem =PathSidebarItem(self)
         for waypoint in self.waypoints:
             poseLabel = sideBar.create_waypoint_label(waypoint)
             self.poseLabels[waypoint] = poseLabel
             self.sideBarItem.addPoseLabel(poseLabel)
+
     def distFromPoint(self, pos):
         dist = self.waypoints[0].dist(pos)
         for i in self.waypoints[0:]:

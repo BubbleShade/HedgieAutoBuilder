@@ -24,7 +24,7 @@ from .. import FieldMap
 from .. import PathDrawer
 from ..SideBar import CommandGroupSideBarItem
 from enum import Enum
-@enumerate
+
 class CommandGroupType(Enum):
     Sequential = ("S","Sequential")
     Parallel = ("P","Parallel")
@@ -38,34 +38,14 @@ class CommandGroupType(Enum):
         return CommandGroupType.Sequential
 
 class CommandGroup():
-    def __init__(self, type : CommandGroupType, *execution):
+    def __init__(self, type : CommandGroupType, parentAuto, *execution):
         self.execution = list(execution)
         self.type = type
         for i in execution:
-            i.parentAuto = self
-        self.pathDrawer = PathDrawer(self)
-
+             i.parentAuto = self
     def updateScene(self,scene : QGraphicsScene = None):
-        self.pathDrawer.updatePath(self.pathDrawerWaypoints())
         if(scene == None): return
-
-    def pathDrawerWaypoints(self):
-        waypoints = [self.initialPose]
-        for i in self.execution:
-            if(type(i) == Path):
-                for waypoint in i.waypoints:
-                    waypoints.append(waypoint)
-        return waypoints
-
         
-    def getLastPose(self, path : Path):
-        index = self.execution.index(path)
-        for i in range(index + 1):
-            if(index - i - 1 < 0):
-                return self.initialPose
-            if(type(self.execution[index - i - 1] == Path)):
-                return self.execution[index - i - 1].waypoints[-1]
-
     def addToScene(self, scene):
         for i in self.execution:
             if(i.addToScene !=  None):
@@ -77,17 +57,18 @@ class CommandGroup():
 
     def addToSideBar(self, sideBar):
         self.sideBarItem = CommandGroupSideBarItem("WHAR", self)
-        sideBar.addSideBarItem(self.sideBarItem)
+        sideBar.addSideBarWidget(self.sideBarItem)
         for i in self.execution:
             i.addToSideBar(self)
-    def addSideBarItem(self, widget):
+    def addSideBarWidget(self, widget):
         self.sideBarItem.lay.addWidget(widget)
+    def addSideBarLayout(self, layout):
+        self.sideBarItem.lay.addLayout(layout)
+    
     
     def paths(self) -> list[Path]:
         return list(filter(lambda a: type(a) == Path, self.execution))
     
     def delete(self):
-        self.initialPose.delete()
         for i in self.execution:
             i.delete()
-        self.pathDrawer.delete()

@@ -39,13 +39,7 @@ class NamedCommand():
         for waypoint in self.waypoints:
             waypoint.addToJson(waypointJsonList, fieldMap)
         return waypointJsonList
-    
-    @staticmethod
-    def fromJsonFile(pathList, fieldMap : FieldMap):
-        waypoints = []
-        for i in pathList:
-            waypoints.append(Waypoint.fromJsonFile(i, fieldMap))
-        return Path(waypoints)
+
     
 
 

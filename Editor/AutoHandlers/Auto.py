@@ -23,13 +23,9 @@ from . import InitialPose
 from .. import FieldMap
 from .. import PathDrawer
 class Auto():
-    def __init__(self, scene, initialPose : InitialPose, *execution):
-        print(initialPose)
-        print(execution)
+    def __init__(self, scene, initialPose : InitialPose, commandGroup : CommandGroup):
         self.initialPose = initialPose
-        self.execution = list(execution)
-        for i in execution:
-            i.parentAuto = self
+        self.commandGroup = commandGroup
         self.scene = scene
         self.pathDrawer = PathDrawer(self)
 
@@ -39,7 +35,7 @@ class Auto():
 
     def pathDrawerWaypoints(self):
         waypoints = [self.initialPose]
-        for i in self.execution:
+        for i in self.commandGroup.execution:
             if(type(i) == Path):
                 for waypoint in i.waypoints:
                     waypoints.append(waypoint)
@@ -56,9 +52,8 @@ class Auto():
 
     def addToScene(self, scene):
         self.initialPose.addDisplay(scene)
-        for i in self.execution:
-            if(i.addToScene !=  None):
-                i.addToScene(scene)
+        self.commandGroup.addToScene(scene)
+        
         self.pathDrawer.setParentItem(scene.camera)
         self.updateScene(scene)
 
@@ -99,7 +94,7 @@ class Auto():
             if(type(i) == NamedCommand):
                 string += "n(" + i.name + ")"
             if(type(i) == CommandGroup):
-                string += i.type[0] + "("
+                string += i.type.value[0] + "("
                 pathCount, guy = self.iterateThroughExecution(json, pathCount, fieldMap)
                 string += guy + ")"
         return pathCount, string
@@ -140,7 +135,7 @@ class Auto():
             if(json["execution"][i] in ("S", "P", "R", "D")):
                 commandType = CommandGroupType.getFromLetter(json["execution"][i])
                 i, newCommandGroupExecution = Auto.iterateThroughExecutionJson(i+1, executionString, json, fieldMap)
-                execution.append(CommandGroup(CommandGroupType.Parallel, newCommandGroupExecution))
+                execution.append(CommandGroup(commandType, *newCommandGroupExecution))
                 continue
             i += 1
         return i, execution

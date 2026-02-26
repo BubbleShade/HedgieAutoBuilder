@@ -29,8 +29,6 @@ class SideBar(QScrollArea):
         self.i = 0
         self.lay = QVBoxLayout()
         self.seqCommandGroup = CommandGroupSideBarItem("Whar")
-        self.coolCommand = NamedCommandSidebarItem("Win the game")
-        self.seqCommandGroup.lay.addWidget(self.coolCommand)
         self.lay.addWidget(self.seqCommandGroup)
         self.setLayout(self.lay)
         self.setMaximumWidth(400)

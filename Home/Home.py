@@ -33,7 +33,7 @@ class Home(QFrame):
         self.editor.back = self
         self.parent().setFocus(self.editor)
     def newAuto(self):
-        auto = Auto(initialPose=InitialPose(100,200), execution=[Path(Waypoint(x= 200, y=300))], scene=self.editor.scene)
+        auto = Auto(self.editor.scene, InitialPose(100,200), Path(Waypoint(x= 200, y=300)))
         self.editor.scene.changeAutoTo(auto)
         self.switchViewToEditor()
 

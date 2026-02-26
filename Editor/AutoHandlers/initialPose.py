@@ -7,8 +7,8 @@ class InitialPose(Waypoint):
         super().__init__(None, x, y, heading)
         self.sideBarItem = None
     def addToSideBar(self, sideBar : SideBar):
-        self.sideBarItem = PathSidebarItem()
-        sideBar.addSideBarLayout(self.sideBarItem)
+        self.sideBarItem = PathSidebarItem(self)
+        sideBar.addSideBarWidget(self.sideBarItem)
         self.poseLabel = sideBar.create_waypoint_label(self)
         self.sideBarItem.addPoseLabel(self.poseLabel)
         self.sideBarItem.pathLabel.setText("InitialPose")
