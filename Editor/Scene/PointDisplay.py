@@ -59,9 +59,8 @@ class PointDisplay(DraggableGraphicsItem):
     def boundingRect(self): return QRectF(0,0,0,0)
 
     def delete(self):
-        self.scene.removeItem(self)
         self.setParentItem(None)
-        self.hide()
+        self.deleteLater()
 
     def undoDelete(self):
         self.scene.addItem(self)

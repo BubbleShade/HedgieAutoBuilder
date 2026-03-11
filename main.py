@@ -1,11 +1,12 @@
 import sys
 
 from PyQt6.QtWidgets import QApplication
+app = QApplication(sys.argv)
+
 from Window import MainWindow
 from Editor import Editor
 from Home import Home
 
-app = QApplication(sys.argv)
 
 window = MainWindow()
 #window.editor = Editor(window)

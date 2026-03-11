@@ -40,11 +40,8 @@ class Camera(QGraphicsItem):
         return self.image.subsurface(self.area)
     def setZoom(self, zoom):
         self.zoomLevel = zoom
-        origin = QPointF(0,0)
         transform = QTransform()
-        transform.translate(origin.x(), origin.y())
         transform.scale(self.zoomLevel, self.zoomLevel)
-        transform.translate(-origin.x(), -origin.y())
         self.setTransform(transform)
 
 
@@ -65,8 +62,10 @@ class Camera(QGraphicsItem):
         return (pos*self.scale()) - self.pos()
         
 class AutoBuilderScene(QGraphicsScene):
-    def __init__(self, sideBar : SideBar, size : QRectF = QRectF(0,0,200,200)):
+    def __init__(self, fieldMap = RebuiltMap(), sideBar : SideBar = None, size : QRectF = QRectF(0,0,200,200), isStatic = False):
         super().__init__(size)
+        self.isStatic = isStatic
+
         self.sideBar = sideBar
         self.camera = Camera()
         self.addItem(self.camera)
@@ -76,21 +75,39 @@ class AutoBuilderScene(QGraphicsScene):
         self.dragStartPos = QPointF()
         self.dragScenePos = QPointF()
         #self.camera.setScale(1)
-        self.camera.setPos(-240,-150)
         
         # Add the items to the scene. Items are stacked in the order they are added.
-        self.auto : Auto = Auto(self, InitialPose(x=504,y=504))
+        self.auto : Auto = None
+
+
 
         self.fieldMap = RebuiltMap()
-        self.addItem(self.fieldMap)
-
-        self.auto.addToScene(self)
-        self.auto.addToSideBar(self.sideBar)        
-        self.i = 3
+        self.fieldMap.setParentItem(self.camera)
 
         self.context_menu = QMenu()
         self.current_file = ""
         self.defaultDirectory = ""
+        
+        if(self.isStatic):
+            self.camera.setZoom(0.3)
+            self.camera.setPos(-60,10)
+        else:
+            #self.auto.addToSideBar(self.sideBar)   
+            self.camera.setZoom(1)
+            self.camera.setPos(-240,-150)
+  
+
+    @staticmethod
+    def fromJson(self, 
+                    autoJson : dict,
+                    size : QRectF = QRectF(0,0,200,200)
+                    ):
+        viewer = AutoBuilderScene(RebuiltMap(), None, size, True)
+        viewer.auto = Auto.fromJsonFile(viewer,autoJson, viewer.fieldMap)
+        viewer.auto.addToStaticScene(viewer)
+
+        return viewer   
+
     def reset_camera(self):
         self.camera.setZoom(1)
         self.camera.setPos(-240,-150)
@@ -109,11 +126,13 @@ class AutoBuilderScene(QGraphicsScene):
         with open(self.current_file, "w") as f:
             json.dump(self.auto.getJsonFile(self.fieldMap), f, indent=4)
     def changeAutoTo(self, auto : Auto):
-        self.auto.delete()
+        if(self.auto != None): 
+            self.auto.delete()
         self.auto = auto
         self.auto.addToScene(self)
         self.auto.addToSideBar(self.sideBar)
         self.update()
+
     def setDefaultDirectory(self,directory =""):
         self.defaultDirectory = directory
     def setCurrentFile(self, file = ""):
@@ -136,11 +155,8 @@ class AutoBuilderScene(QGraphicsScene):
             self.auto.getJsonFile(self.fieldMap)
             )
 
-            
-
-        
-
     def keyPressEvent(self, event):
+        if(self.isStatic): return
         modifiers = QApplication.queryKeyboardModifiers()
         if event.key() == Qt.Key.Key_Z and  modifiers & Qt.KeyboardModifier.ControlModifier:
             if(modifiers & Qt.KeyboardModifier.ShiftModifier):
@@ -155,29 +171,27 @@ class AutoBuilderScene(QGraphicsScene):
         if event.key() == Qt.Key.Key_P and modifiers & Qt.KeyboardModifier.ControlModifier:
             self.publish()
   
-            
-
-
-        
     def mousePressEvent(self, event):
+        if(self.isStatic): return
         super().mousePressEvent(event)
         if(not event.isAccepted()):
-            #self.camera.setPos(self.camera.pos() + QPointF(10,0))
-            #self.camera.setScale(self.camera.scale())
             self.isDragging = True
             self.dragScenePos = event.scenePos()
             self.dragStartPos = self.camera.pos()
 
     def mouseReleaseEvent(self, event):
+        if(self.isStatic): return
         super().mouseReleaseEvent(event)
         self.isDragging = False
 
     def mouseMoveEvent(self, event):
+        if(self.isStatic): return
         super().mouseMoveEvent(event)
         if(self.isDragging):
             self.camera.setPos(self.dragStartPos + (event.scenePos() - self.dragScenePos))
 
     def wheelEvent(self, event):
+        if(self.isStatic): return
         super().wheelEvent(event)
         modifiers = QApplication.keyboardModifiers()
         if (modifiers & Qt.KeyboardModifier.ControlModifier):
@@ -188,6 +202,7 @@ class AutoBuilderScene(QGraphicsScene):
         item.setParentItem(self.camera)
         
     def contextMenuEvent(self, event):
+        if(self.isStatic): return
         super().contextMenuEvent(event)
         if(event.isAccepted()): return
         context_menu = QMenu()

@@ -13,6 +13,9 @@ class NamedCommand():
         self.name = name
         self.sideBarItem = None
         self.parentAuto = None
+        
+        self.sideBarItem = NamedCommandSidebarItem(self.name, self)
+
     
     def getDrawerWaypoints(self):
         return self.parentAuto
@@ -25,10 +28,6 @@ class NamedCommand():
 
     def addToStaticScene(self, scene : QGraphicsScene): pass
 
-    def addToSideBar(self, sideBar : SideBar):
-        self.sideBarItem = NamedCommandSidebarItem(self.name, self)
-        sideBar.addSideBarWidget(self.sideBarItem)
-    
     def delete(self):
         if(self.sideBarItem != None):
             self.sideBarItem.hide()

@@ -1,5 +1,6 @@
-from PyQt6.QtCore import QPointF
+from PyQt6.QtCore import QPointF, pyqtSignal
 from .. import PointDisplay, Action, FieldMap
+from ..SideBar import WaypointSidebarItem
 from Tools import magnitude
 import Tools
 class Waypoint():
@@ -15,6 +16,15 @@ class Waypoint():
 
         self.parentPath = parentPath
         self.poseDisplay = None
+        self.movedSignalQueue = []
+
+        self.sideBarItem = WaypointSidebarItem("WaypointGuy", self)
+
+    def connectMoveSignal(self, function):
+        if(self.poseDisplay != None):
+            self.poseDisplay.movedSignal.connect(function)
+            return
+        self.movedSignalQueue.append(function)
 
     def setHeading(self, rotation):
         self.startHeading = rotation
@@ -48,15 +58,22 @@ class Waypoint():
     def setParent(self, parentPath):
         self.parentPath = parentPath
 
-    def addDisplay(self, scene, isStatic = False):
+    def addDisplay(self, scene, isStatic = False): 
         self.poseDisplay = PointDisplay(scene, self, has_rotation=self.startHeading != None, isStatic=isStatic)
         self.poseDisplay.setPos(self.startX, self.startY)
+
         if(self.startHeading != None):
             self.poseDisplay.setRotation(self.startHeading)
+
         if(self.ctrlPoint1 != None):
             self.poseDisplay.handle.handle1.setPos(self.ctrlPoint1)
+
         if(self.ctrlPoint2 != None):
             self.poseDisplay.handle.handle2.setPos(self.ctrlPoint2)
+            
+        for i in self.movedSignalQueue:
+            self.poseDisplay.movedSignal.connect(i)
+            i()
             
     def undoDelete(self):
         if(self.parentPath != None): 
@@ -64,12 +81,14 @@ class Waypoint():
         if(self.poseDisplay != None): self.poseDisplay.undoDelete()
     
     def delete(self, isRecursive = False):
+
         Action.addAction(Action.Action(self.undoDelete, self.delete))
         if(self.parentPath != None): 
             self.index = self.parentPath.waypoints.index(self)
             self.parentPath.remove(self)
             self.parentPath.updateScene(self.parentPath.scene())
-        if(self.poseDisplay != None): self.poseDisplay.delete()
+        if(self.poseDisplay != None): 
+            self.poseDisplay.delete()
 
     def getDict(self, fieldMap : FieldMap):
         data = {}

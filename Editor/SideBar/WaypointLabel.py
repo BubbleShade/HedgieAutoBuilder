@@ -57,8 +57,7 @@ class WaypointSidebarItem(QFrame):
         self.lay.addWidget(self.yInput)
 
         self.setLayout(self.lay)
-        self.updatePosition()
-        self.waypointHandler.poseDisplay.movedSignal.connect(self.updatePosition)
+        self.waypointHandler.connectMoveSignal(self.updatePosition)
 
         self.xInput.textChanged.connect(self.updateX)
         self.yInput.textChanged.connect(self.updateY)

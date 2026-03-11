@@ -25,6 +25,11 @@ class Path():
         self.poseLabels = {}
         self.parentAuto = None
         self.name = "Path1"
+
+        self.sideBarItem = PathSidebarItem(self)
+        for i in self.waypoints:
+            self.sideBarItem.addPoseLabel(i.sideBarItem)
+
     
     def getDrawerWaypoints(self):
         return self.parentAuto
@@ -115,24 +120,14 @@ class Path():
         newPath.waypoints[-1].startX += 25
 
         exec.insert(index, newPath)
-
-
-
-
-        
         
     def addToScene(self, scene : QGraphicsScene):
         for i in self.waypoints:
             i.addDisplay(scene)
+
     def addToStaticScene(self, scene : QGraphicsScene):
         for i in self.waypoints:
             i.addDisplay(scene, True)
-    def getSidebarItem(self):
-        self.sideBarItem =PathSidebarItem(self)
-        for waypoint in self.waypoints:
-            poseLabel = sideBar.create_waypoint_label(waypoint)
-            self.poseLabels[waypoint] = poseLabel
-            self.sideBarItem.addPoseLabel(poseLabel)
 
     def distFromPoint(self, pos):
         dist = self.waypoints[0].dist(pos)
@@ -141,6 +136,7 @@ class Path():
                 dist = i.dist(pos)
         return dist
     def delete(self):
+        print("IM DLETEING")
         for i in range(len(self.waypoints)):
             self.waypoints[i].parentPath = None
             self.waypoints[i].delete()

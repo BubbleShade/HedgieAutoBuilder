@@ -25,7 +25,7 @@ import Styles, Tools
 
 from Window import CustomTitleBar, CustomWindow
 from . import AutoBox
-from Editor import Editor, Auto, InitialPose, Path, Waypoint
+from Editor import Editor, Auto, InitialPose, Path, Waypoint, CommandGroup, CommandGroupType
 
 
 class Home(QFrame):
@@ -33,7 +33,7 @@ class Home(QFrame):
         self.editor.back = self
         self.parent().setFocus(self.editor)
     def newAuto(self):
-        auto = Auto(self.editor.scene, InitialPose(100,200), Path(Waypoint(x= 200, y=300)))
+        auto = Auto(self.editor.scene, InitialPose(100,200), CommandGroup(CommandGroupType.Sequential, None, Path(Waypoint(x= 200, y=300))))
         self.editor.scene.changeAutoTo(auto)
         self.switchViewToEditor()
 

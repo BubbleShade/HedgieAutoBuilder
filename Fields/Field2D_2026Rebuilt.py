@@ -126,6 +126,9 @@ class RebuiltMap(QGraphicsObject):
         self.trencherson = TrencherSon(self)
         self.trench = Trench(self)
         self.bumperson = Bumperson(self)
+        
+    def setParentItem(self, parent):
+        return super().setParentItem(parent)
 
             
     def getFieldImagePath(self) -> str:

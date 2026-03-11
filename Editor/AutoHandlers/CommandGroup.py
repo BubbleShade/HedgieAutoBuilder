@@ -41,16 +41,19 @@ class CommandGroup():
     def __init__(self, type : CommandGroupType, parentAuto, *execution):
         self.execution = list(execution)
         self.type = type
+        self.scene = None
         for i in execution:
              i.parentAuto = self
     def updateScene(self,scene : QGraphicsScene = None):
         if(scene == None): return
         
     def addToScene(self, scene):
+        self.scene = scene
         for i in self.execution:
             if(i.addToScene !=  None):
                 i.addToScene(scene)
     def addToStaticScene(self, scene):
+        self.scene = scene
         for i in self.execution:
             if(i.addToStaticScene !=  None):
                 i.addToStaticScene(scene)
@@ -58,8 +61,10 @@ class CommandGroup():
     def addToSideBar(self, sideBar):
         self.sideBarItem = CommandGroupSideBarItem("WHAR", self)
         sideBar.addSideBarWidget(self.sideBarItem)
+        print(self.execution)
         for i in self.execution:
-            i.addToSideBar(self)
+            print(i)
+            self.addSideBarWidget(i.sideBarItem)
     def addSideBarWidget(self, widget):
         self.sideBarItem.lay.addWidget(widget)
     def addSideBarLayout(self, layout):

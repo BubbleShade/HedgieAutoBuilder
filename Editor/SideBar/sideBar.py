@@ -28,8 +28,6 @@ class SideBar(QScrollArea):
         super().__init__(parent)         
         self.i = 0
         self.lay = QVBoxLayout()
-        self.seqCommandGroup = CommandGroupSideBarItem("Whar")
-        self.lay.addWidget(self.seqCommandGroup)
         self.setLayout(self.lay)
         self.setMaximumWidth(400)
         self.scene = None
@@ -38,9 +36,9 @@ class SideBar(QScrollArea):
 
     
     def addSideBarWidget(self, sidebarWidget):
-        self.seqCommandGroup.lay.addWidget(sidebarWidget)
+        self.lay.addWidget(sidebarWidget)
     def addSideBarLayout(self, sidebarLayout):
-        self.seqCommandGroup.lay.addLayout(sidebarLayout)
+        self.lay.addLayout(sidebarLayout)
         #self.lay.setParent(self)
 
     def create_waypoint_label(self, waypoint, name = None):

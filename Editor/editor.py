@@ -30,7 +30,7 @@ class Editor(QWidget):
         # Define our layout.
         sidBar = SideBar(self)
 
-        self.scene = AutoBuilderScene(sidBar)
+        self.scene = AutoBuilderScene(sideBar=sidBar)
 
 
         

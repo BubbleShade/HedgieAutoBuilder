@@ -22,7 +22,7 @@ from PyQt6.QtWidgets import (
     QLineEdit
 )
 import json, os
-from Editor import AutoViewer
+from Editor import AutoBuilderScene
 #from . import PoseDisplay
 import Styles
 from Window import CustomTitleBar, CustomWindow
@@ -65,16 +65,18 @@ class AutoBox(QFrame):
 
 
         with open(AutoJsonPath, "r") as f:
-            self.autoViewer = AutoViewer.fromJson(self, json.load(f), QRectF(0,0,190,170))
+            self.autoViewer = AutoBuilderScene.fromJson(self, json.load(f), QRectF(0,0,190,170))
+
         self.view = QGraphicsView(self.autoViewer)
         self.view.setRenderHint(QPainter.RenderHint.Antialiasing)
         self.view.setMaximumSize(QSize(200,180))
         self.view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.view.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.lay.addWidget(self.view)
+
         self.guyFellow = parent
 
-        self.lay.addWidget(self.view)
         self.view.mouseReleaseEvent = self.mouseReleaseEvent
     def delete(self):
         os.remove(self.path)

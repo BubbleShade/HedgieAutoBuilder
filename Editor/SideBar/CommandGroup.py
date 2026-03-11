@@ -51,6 +51,10 @@ class CommandGroupSideBarItem(QFrame):
 
         self.setStyleSheet(Styles.commandGroupStyle)
         self.setLayout(self.lay)
+    def addItem(self, item, index = -1):
+        self.lay.insertItem(item, index)
+    def addWidget(self, widget, index = -1):
+        self.lay.insertWidget(widget, index)
     @staticmethod
     def setVisibilityForLayout(layout : QHBoxLayout, visible : bool):
         for i in range(layout.count()):
