@@ -74,8 +74,8 @@ class DragWidget(QWidget):
 
         e.accept()
 
-    def add_item(self, item):
-        self.blayout.addWidget(item)
+    def add_item(self, item, index = -1):
+        self.blayout.insertWidget(index, item)
         self.orderChanged.emit(self.get_item_data())
     def remove_item(self, item):
         self.blayout.removeWidget(item)

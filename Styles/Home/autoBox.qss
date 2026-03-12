@@ -8,7 +8,6 @@ QFrame {
     font: bold 18px;
     max-width: 14em;
     max-height: 9em;
-    cursor: grab;
 
 }
 QFrame:hover {

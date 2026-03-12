@@ -19,6 +19,9 @@ class Waypoint():
         self.movedSignalQueue = []
 
         self.sideBarItem = WaypointSidebarItem("WaypointGuy", self)
+    def addWaypointAtLocation(self, addToIndex = 0):
+        if(self.parentPath != None):
+            self.parentPath.addWaypointAtLocation(self, addToIndex)
 
     def connectMoveSignal(self, function):
         if(self.poseDisplay != None):

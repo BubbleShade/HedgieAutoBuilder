@@ -19,6 +19,13 @@ class NamedCommand():
     
     def getDrawerWaypoints(self):
         return self.parentAuto
+    
+    def addPathBelow(self):
+        if(self.parentAuto != None):
+            self.parentAuto.addPathBelow(self)
+    def addNamedCommandBelow(self):
+        if(self.parentAuto != None):
+            self.parentAuto.addNamedCommandBelow(self)
 
     def scene(self):
         if(self.parentAuto != None): return self.parentAuto.scene
@@ -29,6 +36,9 @@ class NamedCommand():
     def addToStaticScene(self, scene : QGraphicsScene): pass
 
     def delete(self):
+        if(self.parentAuto != None):
+            self.parentAuto.execution.remove(self)
+
         if(self.sideBarItem != None):
             self.sideBarItem.hide()
             self.sideBarItem.deleteLater()

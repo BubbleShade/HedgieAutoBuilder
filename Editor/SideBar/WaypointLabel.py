@@ -96,8 +96,11 @@ class WaypointSidebarItem(QFrame):
     def contextMenuEvent(self, event : QContextMenuEvent):
         context_menu = QMenu()
         context_menu.setStyleSheet(Styles.contextMenuStyle)
+        addWaypointAbove = context_menu.addAction("Add waypoint above")
+        addWaypointAbove.triggered.connect(lambda : self.handler.addWaypointAtLocation())
         deleteButton = context_menu.addAction("Delete")
         deleteButton.triggered.connect(self.waypointHandler.delete)
+        
         context_menu.exec(event.globalPos()) 
     def delete(self):
         #if(self.pose != None): self.pose.delete()

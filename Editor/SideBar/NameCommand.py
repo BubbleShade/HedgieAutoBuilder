@@ -29,7 +29,7 @@ class NamedCommandSidebarItem(QFrame):
 
         self.edit = QLineEdit(name)
 
-        self.waypointHandler = namedCommandHandler
+        self.handler = namedCommandHandler
         self.parentLayout = parentLayout
 
         self.edit.setAlignment(Qt.AlignmentFlag.AlignLeft)
@@ -42,11 +42,22 @@ class NamedCommandSidebarItem(QFrame):
         self.setMaximumHeight(50)
         self.setLayout(self.lay)
 
+        self.context = QMenu()
+        
+        self.addPathBelow = self.context.addAction("Add Path Below")
+        self.addPathBelow.triggered.connect(self.handler.addPathBelow)
+        
+        self.addPathBelow = self.context.addAction("Add Named Command Below")
+        self.addPathBelow.triggered.connect(self.handler.addNamedCommandBelow)
+        
+        self.context.addSection("Bannana")
+        self.context.setStyleSheet(Styles.contextMenuStyle)
+        deleteButton = self.context.addAction("Delete")
+        deleteButton.triggered.connect(self.handler.delete)
+
+
     def contextMenuEvent(self, event : QContextMenuEvent):
-        context_menu = QMenu()
-        context_menu.setStyleSheet(Styles.contextMenuStyle)
-        deleteButton = context_menu.addAction("Delete")
-        context_menu.exec(event.globalPos()) 
+        self.context.exec(event.globalPos()) 
 
     def delete(self):
         #if(self.pose != None): self.pose.delete()

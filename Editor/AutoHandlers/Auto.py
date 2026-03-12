@@ -27,6 +27,7 @@ class Auto():
     def __init__(self, scene, initialPose : InitialPose = InitialPose(0,0), commandGroup : CommandGroup = CommandGroup(CommandGroupType.Sequential, None)):
         self.initialPose = initialPose
         self.commandGroup = commandGroup
+        self.commandGroup.parentAuto = self
         self.scene = scene
         self.pathDrawer = PathDrawer(self)
 
@@ -93,7 +94,7 @@ class Auto():
                 json["p" + str(pathCount)] = i.getJson(fieldMap)
                 pathCount += 1
             if(type(i) == NamedCommand):
-                string += "n(" + i.name + ")"
+                string += "n[" + i.name + "]"
             if(type(i) == CommandGroup):
                 pathCount, guy = Auto.iterateThroughExecution(json, pathCount, fieldMap)
                 string += guy
@@ -103,7 +104,6 @@ class Auto():
         data = {"initialPose": self.initialPose.getJson(fieldMap)}
         pathCount, execution = Auto.iterateThroughExecution(self.commandGroup, data, 0, fieldMap)
         data["execution"] = execution
-        print(data)
         return data
     @staticmethod
     def iterateThroughExecutionJson(i, executionString : str, json, fieldMap):
@@ -123,7 +123,6 @@ class Auto():
                     num += executionString[i]
                     i += 1
                 execution.append(Path.fromJsonFile(json["p" + num], fieldMap))
-                print("exec", execution)
                 continue
             if(json["execution"][i] == "n"):
                 autoName = ""
@@ -136,7 +135,6 @@ class Auto():
             if(json["execution"][i] in ("S", "P", "R", "D")):
                 commandType = CommandGroupType.getFromLetter(json["execution"][i])
                 i, newCommandGroupExecution = Auto.iterateThroughExecutionJson(i+2, executionString, json, fieldMap)
-                print(newCommandGroupExecution)
 
                 execution.append(CommandGroup(commandType, None, *newCommandGroupExecution))
                 continue
@@ -148,6 +146,4 @@ class Auto():
     def fromJsonFile(scene, json : dict, fieldMap : FieldMap):
         i, execution = Auto.iterateThroughExecutionJson(0, json["execution"], json, fieldMap)
         initialPose = InitialPose.fromJsonFile(json["initialPose"], fieldMap)
-        print("finalExec", execution[0].execution)
-        print("FromJsonFile")
         return Auto(scene, initialPose, execution[0])

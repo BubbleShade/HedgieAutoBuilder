@@ -27,8 +27,10 @@ class SideBar(QScrollArea):
     def __init__(self, parent = None):
         super().__init__(parent)         
         self.i = 0
-        self.lay = QVBoxLayout()
-        self.setLayout(self.lay)
+        container = QWidget()
+        self.lay = QVBoxLayout(container)
+        self.setWidgetResizable(True)
+        self.setWidget(container)
         self.setMaximumWidth(400)
         self.scene = None
         self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)

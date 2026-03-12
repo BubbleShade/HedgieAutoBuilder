@@ -28,24 +28,42 @@ class Path():
 
         self.sideBarItem = PathSidebarItem(self)
         for i in self.waypoints:
+            #self.poseLabels[i] = i.sideBarItem
             self.sideBarItem.addPoseLabel(i.sideBarItem)
 
     
     def getDrawerWaypoints(self):
         return self.parentAuto
+    
+    def addPathBelow(self):
+        if(self.parentAuto != None):
+            self.parentAuto.addPathBelow(self)
+    def addNamedCommandBelow(self):
+        if(self.parentAuto != None):
+            self.parentAuto.addNamedCommandBelow(self)
+        
 
     def scene(self):
         if(self.parentAuto != None): return self.parentAuto.scene
         else: return None
 
-    def updateScene(self,scene : QGraphicsScene):
-        if(scene == None): return
+    def updateScene(self,scene : QGraphicsScene = None):
         self.parentAuto.updateScene(scene)
+        if(scene == None): return
 
     def remove(self, waypoint : Waypoint):
+        self.sideBarItem.poseLayout.remove_item(waypoint.sideBarItem)
         self.waypoints.remove(waypoint)
-        if(self.poseLabels[waypoint] != None):
-            self.poseLabels[waypoint].delete()
+
+        # if(self.poseLabels[waypoint] != None):
+        #     self.poseLabels[waypoint].delete()
+    def addWaypointAtLocation(self, waypoint : Waypoint, addToIndex = 0):
+        index= self.waypoints.index(waypoint) + addToIndex
+        newWaypoint = Waypoint(self, waypoint.x() + 100, waypoint.y())
+        self.waypoints.insert(index, newWaypoint)
+        newWaypoint.addDisplay(self.scene())
+        self.sideBarItem.addPoseLabel(newWaypoint.sideBarItem, index)
+        self.updateScene()
     def swapIndexes(self, i1, i2):
         waypoint1 : Waypoint = self.waypoints[i1]
         waypoint2 : Waypoint = self.waypoints[i2]
@@ -113,13 +131,6 @@ class Path():
         waypoint.poseDisplay.handle.handle1.setCenterPos( bestHandle1Pos * 20 )
         waypoint.poseDisplay.handle.handle2.setCenterPos( bestHandle2Pos * 20 )
         self.addWaypointAtIndex(waypoint, bestIndex)     
-    def addPathBelow(self):
-        exec : list =self.parentAuto.execution 
-        index = exec.index(self)
-        newPath = Path([self.waypoints[-1]])
-        newPath.waypoints[-1].startX += 25
-
-        exec.insert(index, newPath)
         
     def addToScene(self, scene : QGraphicsScene):
         for i in self.waypoints:
@@ -136,13 +147,15 @@ class Path():
                 dist = i.dist(pos)
         return dist
     def delete(self):
-        print("IM DLETEING")
         for i in range(len(self.waypoints)):
             self.waypoints[i].parentPath = None
             self.waypoints[i].delete()
         if(self.sideBarItem != None):
             self.sideBarItem.hide()
             self.sideBarItem.deleteLater()
+        if(self.parentAuto != None):
+            self.parentAuto.execution.remove(self)
+            self.parentAuto.updateScene()
 
     def getJson(self, fieldMap : FieldMap):
         waypointJsonList = []

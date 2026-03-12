@@ -1,12 +1,12 @@
 from . import Waypoint
-from ..import SideBar, PathSidebarItem, FieldMap
-from ..SideBar import WaypointSidebarItem
+from ..import SideBar, FieldMap
+from ..SideBar import WaypointSidebarItem, InitalPoseSidebarItem
 import Tools
 
 class InitialPose(Waypoint):
     def __init__(self, x=0, y=0, heading=0):
         super().__init__(None, x, y, heading)
-        self.sideBarItem = PathSidebarItem(self)
+        self.sideBarItem = InitalPoseSidebarItem(self)
         
         self.poseLabel = WaypointSidebarItem("Waypoint", self)
         self.sideBarItem.addPoseLabel(self.poseLabel)
